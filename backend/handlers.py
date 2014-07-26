@@ -1,6 +1,6 @@
 import braintree
-import json
 from flask import render_template, request
+from flask.json import jsonify
 
 from server import app, db
 import models
@@ -13,7 +13,7 @@ def root():
 @app.route('/client/get_token/<customer_id>')
 def get_token(customer_id):
   client_token = braintree.ClientToken.generate()
-  return json.dumps({'status': 'ok', 'token': client_token})
+  return jsonify({'status': 'ok', 'token': client_token})
 
 
 @app.route('/client/finish', methods=['POST'])
@@ -28,7 +28,7 @@ def complete_payment():
   else:
       result = {'status': 'error', 'message': result.message}
 
-  return json.dumps(result)
+  return jsonify(result)
 
 
 @app.route('/vendors/find')
@@ -36,4 +36,4 @@ def find_vendors():
   ids = request.args.getlist('ids')
   vendors = models.Vendor.filter_by_ids(ids)
   vendors = [{'id': v.bluetooth, 'vendor': v.vendor} for v in vendors]
-  return json.dumps(vendors)
+  return jsonify(vendors)
