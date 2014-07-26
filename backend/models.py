@@ -8,6 +8,8 @@ class Vendor(db.Model):
   vendor = db.Column(db.Unicode(100))
   keyword = db.Column(db.Unicode(100))
   price = db.Column(db.Integer())
+  organisation = db.relationship('Organisation')
+  organisation_id = db.Column(db.Integer(), db.ForeignKey('organisation.id'))
 
   @classmethod
   def filter_by_ids(cls, ids):
@@ -57,3 +59,10 @@ class User(db.Model):
 
   def is_anonymous(self):
     return False
+
+class Organisation(db.Model):
+  id = db.Column(db.Integer, primary_key=True)
+  name = db.Column(db.Unicode(100), unique=True, nullable=False)
+
+  def __unicode__(self):
+    return self.name

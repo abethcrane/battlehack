@@ -17,6 +17,11 @@ class VendorAdmin(sqla.ModelView):
   def is_accessible(self):
     return login.current_user.is_authenticated()
 
+  def get_query(self):
+    q = super(VendorAdmin, self).get_query()
+    q = q.filter(models.Vendor.organisation==login.current_user)
+    return q
+
 
 class AdminIndexView(admin.AdminIndexView):
   @expose('/')
