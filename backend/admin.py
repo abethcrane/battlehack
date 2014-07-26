@@ -7,7 +7,14 @@ from flask.ext.admin import expose, helpers
 from flask.ext.admin.contrib import sqla
 
 
-class VendorAdmin(sqla.ModelView):
+class BaseOrganisationFilteredModelView(sqla.ModelView):
+  def get_query(self):
+    q = super(BaseOrganisationFilteredModelView, self).get_query()
+    q = q.filter(self.model.organisation==login.current_user.organisation)
+    return q
+
+
+class VendorAdmin(BaseOrganisationFilteredModelView):
   column_labels = dict(bluetooth='Bluetooth ID', vendor='Name')
   column_searchable_list = (models.Vendor.bluetooth, models.Vendor.vendor)
 
@@ -17,10 +24,6 @@ class VendorAdmin(sqla.ModelView):
   def is_accessible(self):
     return login.current_user.is_authenticated()
 
-  def get_query(self):
-    q = super(VendorAdmin, self).get_query()
-    q = q.filter(models.Vendor.organisation==login.current_user.organisation)
-    return q
 
 
 class AdminIndexView(admin.AdminIndexView):
