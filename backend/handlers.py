@@ -112,5 +112,7 @@ def find_vendors():
       'vendor': v.vendor,
       'price': v.price,
       'organisation': v.organisation.name,
+      'item_name': v.item_name,
+      'url': v.image,
   } for v in vendors]
   return jsonify({'status': 'ok', 'vendors': vendors})
