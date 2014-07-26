@@ -14,6 +14,8 @@ class Vendor(db.Model):
   organisation = db.relationship('Organisation')
   organisation_id = db.Column(db.Integer(), db.ForeignKey('organisation.id'))
 
+  total_sold = db.Column(db.Integer(), default=0, nullable=False)  # should be @aggregated but can't get it to subquery
+
   def __unicode__(self):
     return self.vendor
 
@@ -100,3 +102,4 @@ class Order(db.Model):
     self.vendor = vend
     self.item = item
     self.price = price
+    self.vendor.total_sold += price
