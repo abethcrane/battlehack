@@ -1,15 +1,36 @@
 import braintree
-from flask import render_template, request
+from flask import render_template, redirect, request, url_for
 from flask.json import jsonify
+from flask.ext import login
 
 import config
-from server import app, db
+from server import app, db, login_manager
 import models
 
 @app.route('/')
 def root():
   return render_template('root.html')
 
+
+@app.route('/login', methods=['GET', 'POST'])
+def auth_login():
+  error = False
+
+  if request.method == 'POST':
+    u = models.User.authenticate_or_none(request.form['username'], request.form['password'])
+    if u:
+      login.login_user(u)
+      return redirect(url_for('root'))
+    else:
+      error = True
+
+  return render_template('login.html', error=error)
+
+
+@app.route('/logout')
+def auth_logout():
+  login.logout_user()
+  return redirect(url_for('root'))
 
 @app.route('/client/get_token/<customer_id>')
 def get_token(customer_id):
