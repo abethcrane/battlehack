@@ -50,6 +50,24 @@ def complete_payment():
   else:
       result = {'status': 'error', 'message': result.message}
 
+  print request.form["payment_method_nonce"], result
+
+  return jsonify(result)
+
+
+@app.route('/vendors/redeem', methods=['POST'])
+def redeem_token():
+  vid = request.form['vendor_id']
+  vendor = models.Vendor.get_by_id(vid)
+  if not vendor:
+    return jsonify({'status': 'error', 'message': 'no such vendor'})
+
+  result = braintree.Transaction.submit_for_settlement(request.form['transaction_id'])
+  if result.is_success:
+    result = {'status': 'ok', 'keyword': vendor.keyword}
+  else:
+    result = {'status': 'error', 'message': repr(result.errors)}
+
   return jsonify(result)
 
 
@@ -57,5 +75,5 @@ def complete_payment():
 def find_vendors():
   ids = request.args.getlist('ids')
   vendors = models.Vendor.filter_by_ids(ids)
-  vendors = [{'id': v.bluetooth, 'vendor': v.vendor} for v in vendors]
-  return jsonify(vendors)
+  vendors = [{'id': v.id, 'bluetooth': v.bluetooth, 'vendor': v.vendor} for v in vendors]
+  return jsonify({'status': 'ok', 'vendors': vendors})

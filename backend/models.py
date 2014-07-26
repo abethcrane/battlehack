@@ -6,11 +6,17 @@ class Vendor(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   bluetooth = db.Column(db.String(100), unique=True)
   vendor = db.Column(db.Unicode(100))
+  keyword = db.Column(db.Unicode(100))
 
   @classmethod
   def filter_by_ids(cls, ids):
     rows = cls.query.filter(cls.bluetooth.in_(ids))
     return rows
+
+  @classmethod
+  def get_by_id(cls, vid):
+    return cls.query.filter(cls.id==vid).first()
+
 
 class User(db.Model):
   id = db.Column(db.Integer, primary_key=True)
