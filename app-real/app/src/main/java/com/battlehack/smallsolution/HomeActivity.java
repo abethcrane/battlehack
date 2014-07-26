@@ -1,9 +1,17 @@
 package com.battlehack.smallsolution;
 
 import android.app.ListActivity;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -42,7 +50,7 @@ public class HomeActivity extends ListActivity {
         startScanning();
     }
 
-    public void rescanClick(View v) {
+    public void rescanClick() {
         startScanning();
     }
 
@@ -63,16 +71,19 @@ public class HomeActivity extends ListActivity {
     private BeaconCallback bc = new BeaconCallback() {
         public void beaconFound(String major, String minor, byte[] beaconUuid) {
             String text = "Major: "+major + " minor: " + minor;
+            Log.v("beacon callback", text);
             if (!beaconsFound.contains(text)) {
                 beaconsFound.add(text);
                 new HTTPHandlers().fetchVendorInfo(major, minor, new HTTPHandlers.VendorInfoCallback() {
                     @Override
-                    public void infoFetched(String major, String minor, String Id, String name) {
+                    public void infoFetched(String major, String minor, String vendor_id, String vendor_name) {
                         Integer upTo = adapter.getCount();
-                        idMap.put(upTo, Id);
-                        nameMap.put(upTo, name);
-                        adapter.add(name);
+                        idMap.put(upTo, vendor_id);
+                        nameMap.put(upTo, vendor_name);
+                        adapter.add(vendor_name);
                         adapter.notifyDataSetChanged();
+                        String item_name = "The Big Issue";
+                        notifyInRange(item_name, vendor_name, vendor_id);
                     }
                 });
             }
@@ -87,7 +98,69 @@ public class HomeActivity extends ListActivity {
         startActivity(paymentScreen);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.home, menu);
+        return true;
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // action with ID action_settings was selected
+            case R.id.action_settings:
+                Intent i = new Intent(getApplicationContext(), Settings.class);
+                startActivity(i);
+                break;
+            case R.id.action_rescan:
+                rescanClick();
+                break;
+            default:
+                break;
+        }
+
+        return true;
+    }
+
+    protected void notifyInRange(String item_name, String vendor_name, String vendor_id) {
+
+        Log.v("notify", "Got called!");
+
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this)
+                        .setSmallIcon(R.drawable.ic_launcher)
+                        .setContentTitle("Buy "+item_name)
+                        .setContentText(vendor_name+" is nearby")
+                        .setAutoCancel(true);
+
+        // Creates an explicit intent for an Activity in your app
+        Intent resultIntent = new Intent(this, PaymentLoadingActivity.class);
+        resultIntent.putExtra("name", vendor_name);
+        resultIntent.putExtra("id", vendor_id);
+    /* The stack builder object will contain an artificial back stack for the
+     started Activity.
+     This ensures that navigating backward from the Activity leads out of
+     your application to the Home screen. */
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        // Adds the back stack for the Intent (but not the Intent itself)
+        stackBuilder.addParentStack(PaymentLoadingActivity.class); //TODO: Not sure this is correct?
+        // Adds the Intent that starts the Activity to the top of the stack
+        stackBuilder.addNextIntent(resultIntent);
+
+        PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(
+                        0,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+        mBuilder.setContentIntent(resultPendingIntent);
+
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        // we can pass a var instead of 0, which allows you to update the notification later on.
+        mNotificationManager.notify(0, mBuilder.build());
+    }
 
 
 
