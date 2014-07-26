@@ -39,8 +39,14 @@ class User(db.Model):
     hashed = self.password.encode('utf-8')
     return hashed is not None and bcrypt.hashpw(password, hashed) == hashed
 
+  def get_id(self):
+    return self.username
+
   def is_active(self):
     return True
 
-  def get_id(self):
-    return self.username
+  def is_authenticated(self):
+    return True
+
+  def is_anonymous(self):
+    return False
