@@ -12,7 +12,7 @@ class VendorAdmin(sqla.ModelView):
   column_searchable_list = (models.Vendor.bluetooth, models.Vendor.vendor)
 
   def __init__(self, session):
-    super(VendorAdmin, self).__init__(models.Vendor, session)
+    super(VendorAdmin, self).__init__(models.Vendor, session, name='Individual vendors')
 
   def is_accessible(self):
     return login.current_user.is_authenticated()
