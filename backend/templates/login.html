@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+
+<html>
+<body>
+  {% if error %}
+  <p>Invalid username or password.</p>
+  {% endif %}
+
+  <form method='POST' action='/login'>
+    <input type='text' name='username' placeholder='evgeny'>
+    <input type='password' name='password' placeholder='potato'>
+    <input type='submit'>
+  </form>
+</body>
+</html>
