@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -30,6 +31,8 @@ public class HomeActivity extends ListActivity {
     private Set<String> beaconsFound = new HashSet<String>();
     private Map<Integer, Vendor> vendorMap = new HashMap<Integer, Vendor>();
     private VendorAdapter adapter;
+    public int currentNotification;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -164,11 +167,14 @@ public class HomeActivity extends ListActivity {
                 );
         mBuilder.setContentIntent(resultPendingIntent);
 
-        NotificationManager mNotificationManager =
-                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        // we can pass a var id which allows you to update the notification later on.
+        //Clear old notification
+        NotificationManager notificationManager = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(currentNotification);
 
-        // we can pass a var instead of 0, which allows you to update the notification later on.
-        mNotificationManager.notify(0, mBuilder.build());
+        Random r = new Random();
+        currentNotification =  r.nextInt()%100;
+        notificationManager.notify(currentNotification, mBuilder.build());
     }
 
 

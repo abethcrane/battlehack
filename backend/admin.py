@@ -17,6 +17,7 @@ class BaseOrganisationFilteredModelView(sqla.ModelView):
 class VendorAdmin(BaseOrganisationFilteredModelView):
   column_labels = dict(bluetooth='Bluetooth ID', vendor='Name')
   column_searchable_list = (models.Vendor.bluetooth, models.Vendor.vendor)
+  form_excluded_columns = ('total_sold',)
 
   def __init__(self, session):
     super(VendorAdmin, self).__init__(models.Vendor, session, name='Individual vendors')
@@ -26,7 +27,10 @@ class VendorAdmin(BaseOrganisationFilteredModelView):
 
 
 class OrdersView(BaseOrganisationFilteredModelView):
-  action_disallowed_list = ['edit', 'delete']
+  can_create = False
+  can_edit = False
+  can_delete = False
+
   column_sortable_list = ('vendor', 'item', 'price', 'timestamp')
 
   def __init__(self, session):
