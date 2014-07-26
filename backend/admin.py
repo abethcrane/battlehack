@@ -26,7 +26,10 @@ class VendorAdmin(BaseOrganisationFilteredModelView):
 
 
 class OrdersView(BaseOrganisationFilteredModelView):
-  action_disallowed_list = ['edit', 'delete']
+  can_create = False
+  can_edit = False
+  can_delete = False
+
   column_sortable_list = ('vendor', 'item', 'price', 'timestamp')
 
   def __init__(self, session):
