@@ -8,9 +8,9 @@ from server import app, db, login_manager
 import models
 
 
-def authorise_payment(payment_method_nonce):
+def authorise_payment(payment_method_nonce, amount):
   result = braintree.Transaction.sale({
-      "amount" : config.purchase_price,
+      "amount" : amount,
       "payment_method_nonce" : payment_method_nonce,
   })
 
@@ -58,6 +58,9 @@ def auth_logout():
   return redirect(url_for('root'))
 
 
+#
+# OLD API
+#
 @app.route('/client/get_token/<customer_id>')
 def get_token(customer_id):
   client_token = braintree.ClientToken.generate()
@@ -66,7 +69,7 @@ def get_token(customer_id):
 
 @app.route('/client/finish', methods=['POST'])
 def complete_payment():
-  result = authorise_payment(request.form['payment_method_nonce'])
+  result = authorise_payment(request.form['payment_method_nonce'], config.purchase_price)
   return jsonify(result)
 
 
@@ -81,6 +84,9 @@ def redeem_token():
   return jsonify(result)
 
 
+#
+# NEW API
+#
 @app.route('/client/instant', methods=['POST'])
 def client_instant():
   vid = request.form['vendor_id']
@@ -88,7 +94,7 @@ def client_instant():
   if not vendor:
     return jsonify({'status': 'error', 'message': 'no such vendor'})
 
-  result = authorise_payment(request.form['payment_method_nonce'])
+  result = authorise_payment(request.form['payment_method_nonce'], vendor.price)
   if result['status'] != 'ok':
     return jsonify(result)
 
@@ -100,5 +106,10 @@ def client_instant():
 def find_vendors():
   ids = request.args.getlist('ids')
   vendors = models.Vendor.filter_by_ids(ids)
-  vendors = [{'id': v.id, 'bluetooth': v.bluetooth, 'vendor': v.vendor} for v in vendors]
+  vendors = [{
+      'id': v.id,
+      'bluetooth': v.bluetooth,
+      'vendor': v.vendor,
+      'price': v.price,
+  } for v in vendors]
   return jsonify({'status': 'ok', 'vendors': vendors})

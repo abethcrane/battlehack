@@ -7,6 +7,7 @@ class Vendor(db.Model):
   bluetooth = db.Column(db.String(100), unique=True)
   vendor = db.Column(db.Unicode(100))
   keyword = db.Column(db.Unicode(100))
+  price = db.Column(db.Integer())
 
   @classmethod
   def filter_by_ids(cls, ids):
