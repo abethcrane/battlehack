@@ -7,6 +7,31 @@ import config
 from server import app, db, login_manager
 import models
 
+
+def authorise_payment(payment_method_nonce):
+  result = braintree.Transaction.sale({
+      "amount" : config.purchase_price,
+      "payment_method_nonce" : payment_method_nonce,
+  })
+
+  if result.is_success:
+      result = {'status': 'ok', 'transaction_id': result.transaction.id}
+  else:
+      result = {'status': 'error', 'message': result.message}
+
+  print request.form["payment_method_nonce"], result
+  return result
+
+
+def submit_for_settlement(transaction_id, vendor):
+  result = braintree.Transaction.submit_for_settlement(transaction_id)
+  if result.is_success:
+    result = {'status': 'ok', 'keyword': vendor.keyword}
+  else:
+    result = {'status': 'error', 'message': repr(result.errors)}
+  return result
+
+
 @app.route('/')
 def root():
   return render_template('root.html')
@@ -32,6 +57,7 @@ def auth_logout():
   login.logout_user()
   return redirect(url_for('root'))
 
+
 @app.route('/client/get_token/<customer_id>')
 def get_token(customer_id):
   client_token = braintree.ClientToken.generate()
@@ -40,18 +66,7 @@ def get_token(customer_id):
 
 @app.route('/client/finish', methods=['POST'])
 def complete_payment():
-  result = braintree.Transaction.sale({
-      "amount" : config.purchase_price,
-      "payment_method_nonce" : request.form["payment_method_nonce"]
-  })
-
-  if result.is_success:
-      result = {'status': 'ok', 'transaction_id': result.transaction.id}
-  else:
-      result = {'status': 'error', 'message': result.message}
-
-  print request.form["payment_method_nonce"], result
-
+  result = authorise_payment(request.form['payment_method_nonce'])
   return jsonify(result)
 
 
@@ -62,12 +77,22 @@ def redeem_token():
   if not vendor:
     return jsonify({'status': 'error', 'message': 'no such vendor'})
 
-  result = braintree.Transaction.submit_for_settlement(request.form['transaction_id'])
-  if result.is_success:
-    result = {'status': 'ok', 'keyword': vendor.keyword}
-  else:
-    result = {'status': 'error', 'message': repr(result.errors)}
+  result = submit_for_settlement(request.form['transaction_id'], vendor)
+  return jsonify(result)
 
+
+@app.route('/client/instant', methods=['POST'])
+def client_instant():
+  vid = request.form['vendor_id']
+  vendor = models.Vendor.get_by_id(vid)
+  if not vendor:
+    return jsonify({'status': 'error', 'message': 'no such vendor'})
+
+  result = authorise_payment(request.form['payment_method_nonce'])
+  if result['status'] != 'ok':
+    return jsonify(result)
+
+  result = submit_for_settlement(result['transaction_id'], vendor)
   return jsonify(result)
 
 
