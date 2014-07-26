@@ -1,0 +1,2 @@
+rem change this to a system path or something.
+"C:\Program Files\Java\jdk1.6.0_35\bin\javac" -d ..\obj -classpath c:\Users\Andrew\android-sdks\platforms\android-19\android.jar;..\obj; -sourcepath src ..\src\com\ecd\*.java 2> output.txt
