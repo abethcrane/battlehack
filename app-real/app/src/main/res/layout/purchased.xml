@@ -11,7 +11,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="@string/purchased_title"
+        android:text="@string/purchased_result"
         android:id="@+id/Message"
         android:layout_weight="0.09"
         android:layout_row="0"

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:title="Preferences">
+
+    <PreferenceCategory
+        android:title="Name">
+        <EditTextPreference
+            android:key="pref_text"
+            android:title="Enter your name"
+            android:dialogTitle="Enter text"
+            />
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="Facebook">
+        <SwitchPreference
+            android:key="fb_share"
+            android:title="Share with Facebook"
+            android:summary="Enable to see sharing options"
+            android:defaultValue="true"
+            android:disableDependentsState="false"
+            />
+        <CheckBoxPreference
+            android:key="fb_auto_share"
+            android:title="Auto share each purchase"
+            android:summary="Disable to see a share button after purchase"
+            android:defaultValue="false"
+            android:dependency="fb_share"
+            android:disableDependentsState="false"
+            />
+        <EditTextPreference
+            android:key="fb_auto_share_description"
+            android:title="Auto share message"
+            android:dialogTitle="Enter Message"
+            android:dependency="fb_auto_share"
+            android:defaultValue="I just bought The Big Issue! :)"
+            android:inputType="textMultiLine"
+        />
+
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

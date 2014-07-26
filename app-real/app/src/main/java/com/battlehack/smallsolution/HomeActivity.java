@@ -119,7 +119,6 @@ public class HomeActivity extends ListActivity {
             default:
                 break;
         }
-
         return true;
     }
 
