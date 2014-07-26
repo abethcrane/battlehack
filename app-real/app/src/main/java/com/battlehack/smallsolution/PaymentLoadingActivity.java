@@ -6,16 +6,20 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.View;
 import android.view.Window;
+import android.view.MenuItem;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.braintreepayments.api.dropin.BraintreePaymentActivity;
+import com.braintreepayments.api.dropin.Customization;
 
 public class PaymentLoadingActivity extends Activity implements HTTPHandlers.PaymentTokenCallback, HTTPHandlers.PaymentFinishedCallback {
 
-    private String vendorName;
-    private String vendorId;
+    private Vendor v;
     private boolean active;
 
     @Override
@@ -23,12 +27,19 @@ public class PaymentLoadingActivity extends Activity implements HTTPHandlers.Pay
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
         setProgressBarIndeterminateVisibility(true);
-        vendorName = getIntent().getStringExtra("vendor_name");
-        vendorId = getIntent().getStringExtra("vendor_id");
+        v = (Vendor) getIntent().getSerializableExtra("vendor");
         active = true;
         setContentView(R.layout.payment_loading_activity);
         new HTTPHandlers().fetchPaymentToken(this);
-        setText(String.format(getString(R.string.payment_loading), vendorName));
+        setText(String.format(getString(R.string.payment_loading), v.name));
+        TextView tv = (TextView) findViewById(R.id.vendName);
+        tv.setText("From " + v.name);
+        tv = (TextView) findViewById(R.id.description);
+        tv.setText(v.item + " - $" + v.price);
+        v.getImageAsync((ImageView) findViewById(R.id.prodDis));
+        ProgressBar spinner;
+        spinner = (ProgressBar)findViewById(R.id.progressBar);
+        spinner.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -41,6 +52,12 @@ public class PaymentLoadingActivity extends Activity implements HTTPHandlers.Pay
     public void tokenFetchedSuccess(String token) {
         if (!active) return;
         Intent intent = new Intent(getApplicationContext(), BraintreePaymentActivity.class);
+        Customization customization = new Customization.CustomizationBuilder()
+                .primaryDescription(v.item)
+                .amount("$" + v.price)
+                .submitButtonText("Buy")
+                .build();
+        intent.putExtra(BraintreePaymentActivity.EXTRA_CUSTOMIZATION, customization);
         intent.putExtra(BraintreePaymentActivity.EXTRA_CLIENT_TOKEN, token);
         startActivityForResult(intent, 434);
     }
@@ -58,8 +75,8 @@ public class PaymentLoadingActivity extends Activity implements HTTPHandlers.Pay
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 434 && resultCode == BraintreePaymentActivity.RESULT_OK) {
             String paymentMethodNonce = data.getStringExtra(BraintreePaymentActivity.EXTRA_PAYMENT_METHOD_NONCE);
-            new HTTPHandlers().finalisedPayment(paymentMethodNonce, vendorId, this);
-            setText(String.format(getString(R.string.payment_processing), vendorName));
+            new HTTPHandlers().finalisedPayment(paymentMethodNonce, v.id, this);
+            setText(String.format(getString(R.string.payment_processing), v.name));
             active = true;
         } else if (resultCode == BraintreePaymentActivity.RESULT_CANCELED) {
             finish();
@@ -74,7 +91,7 @@ public class PaymentLoadingActivity extends Activity implements HTTPHandlers.Pay
     public void paymentFinishedSuccess(String code) {
         if (!active) return;
         Intent successScreen = new Intent(getApplicationContext(), Purchased.class);
-        successScreen.putExtra("name", vendorName);
+        successScreen.putExtra("name", v.name);
         successScreen.putExtra("code", code);
         startActivity(successScreen);
         finish();
@@ -98,6 +115,20 @@ public class PaymentLoadingActivity extends Activity implements HTTPHandlers.Pay
     public boolean onCreateOptionsMenu(Menu menu) {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.other, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            // action with ID action_settings was selected
+            case R.id.action_settings:
+                Intent i = new Intent(getApplicationContext(), Settings.class);
+                startActivity(i);
+                break;
+            default:
+                break;
+        }
         return true;
     }
 

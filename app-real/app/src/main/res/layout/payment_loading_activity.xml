@@ -11,7 +11,7 @@
         android:text="Loading..."
         android:id="@+id/loading_text"
         android:layout_gravity="center"
-        android:layout_marginTop="45dp"
+        android:layout_marginTop="35dp"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true" />
 
@@ -20,8 +20,59 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:text="Large Text"
-        android:id="@+id/textView"
-        android:layout_below="@+id/loading_text"
+        android:id="@+id/description"
+        android:textStyle="bold"
+        android:textSize="30dp"
+        android:textColor="#000000"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="41dp" />
+        android:layout_marginTop="30dp"
+        android:layout_below="@+id/spacer"
+        />
+
+    <ImageView
+        android:layout_height="wrap_content"
+        android:paddingRight="10px"
+        android:paddingLeft="10px"
+        android:paddingTop="10px"
+        android:layout_marginTop="10dp"
+        android:layout_width="fill_parent"
+        android:layout_below="@+id/description"
+        android:id="@+id/prodDis"
+        android:minHeight="200dp"
+        android:maxHeight="200dp"  />
+
+    <ImageView
+        android:layout_gravity="center_horizontal"
+        android:paddingTop="10px"
+        android:paddingBottom="5px"
+        android:minHeight="1dp"
+        android:maxHeight="1dp"
+        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_marginTop="21dp"
+        android:layout_below="@+id/loading_text"
+        android:id="@+id/spacer"
+        android:background="#336699" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:text="Medium Text"
+        android:textStyle="bold"
+        android:textSize="20dp"
+        android:textColor="#000000"
+        android:id="@+id/vendName"
+        android:layout_below="@+id/prodDis"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="10dp" />
+
+    <ProgressBar
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/progressBar"
+        android:layout_below="@+id/vendName"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:indeterminate="true" />
 </RelativeLayout>

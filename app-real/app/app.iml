@@ -69,6 +69,7 @@
     <orderEntry type="library" exported="" name="support-v4-19.1.0" level="project" />
     <orderEntry type="library" exported="" name="data-1.0.3" level="project" />
     <orderEntry type="library" exported="" name="support-v13-19.1.0" level="project" />
+    <orderEntry type="module" module-name="facebook" exported="" />
   </component>
 </module>
 

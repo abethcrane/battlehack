@@ -50,8 +50,7 @@ public class VendorAdapter extends ArrayAdapter<Vendor> {
         Vendor v = super.getItem(position);
         holder.txtTitle.setText(v.name);
         holder.txtExtra.setText("  " + v.item + " - $" + v.price);
-        holder.imgIcon.setTag(v.url);
-        new DownloadImagesTask().execute(holder.imgIcon);
+        v.getImageAsync(holder.imgIcon);
         return row;
     }
 
@@ -61,33 +60,4 @@ public class VendorAdapter extends ArrayAdapter<Vendor> {
         TextView txtExtra;
     }
 
-    public class DownloadImagesTask extends AsyncTask<ImageView, Void, Bitmap> {
-
-        ImageView imageView = null;
-
-        @Override
-        protected Bitmap doInBackground(ImageView... imageViews) {
-            this.imageView = imageViews[0];
-            return download_Image((String) imageView.getTag());
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap result) {
-            imageView.setImageBitmap(result);
-        }
-
-
-        private Bitmap download_Image(String url) {
-            Bitmap bm = null;
-            try {
-                InputStream is = (InputStream) new URL(url).getContent();
-                BufferedInputStream bis = new BufferedInputStream(is);
-                bm = BitmapFactory.decodeStream(bis);
-                is.close();
-            } catch (Exception e) {
-                Log.e("Err", "Error getting the image from server : " + e.getMessage().toString());
-            }
-            return bm;
-        }
-    }
 }

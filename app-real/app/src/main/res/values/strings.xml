@@ -6,9 +6,11 @@
     <string name="title_section2">Find Vendors</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="purchased_title" formatted="false">Thank you for purchasing from %s, your code is %s.</string>
-    <string name="payment_loading" formatted="false">Loading payment for %s...</string>
-    <string name="payment_processing" formatted="false">Processing payment for %s...</string>
+    <string name="purchased_result" formatted="false">Thank you for purchasing from %s, your code is %s.</string>
+    <string name="payment_loading" formatted="false">Loading payment...</string>
+    <string name="payment_processing" formatted="false">Processing payment...</string>
     <string name="payment_error" formatted="false">An error occured while processing your payment.</string>
-
+    <string name="title_settings">Settings</string>
+    <string name="title_purchased">Purchased Successfully</string>
+    <string name="title_loading">Loading Payments</string>
 </resources>

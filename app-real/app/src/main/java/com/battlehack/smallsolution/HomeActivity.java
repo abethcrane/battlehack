@@ -93,8 +93,7 @@ public class HomeActivity extends ListActivity {
         if (position == 0) return;
         Integer pos = position - 1;
         Intent paymentScreen = new Intent(getApplicationContext(), PaymentLoadingActivity.class);
-        paymentScreen.putExtra("vendor_id", vendorMap.get(pos).id);
-        paymentScreen.putExtra("vendor_name", vendorMap.get(pos).name);
+        paymentScreen.putExtra("vendor", vendorMap.get(pos));
         startActivity(paymentScreen);
     }
 
@@ -119,7 +118,6 @@ public class HomeActivity extends ListActivity {
             default:
                 break;
         }
-
         return true;
     }
 
