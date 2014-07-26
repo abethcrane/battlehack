@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -72,6 +74,13 @@ public class PaymentLoadingActivity extends Activity implements HTTPHandlers.Pay
     private void setText(String text) {
         TextView tv = (TextView) findViewById(R.id.loading_text);
         tv.setText(text);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.other, menu);
+        return true;
     }
 
 }
