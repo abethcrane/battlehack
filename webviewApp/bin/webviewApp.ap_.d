@@ -9,4 +9,5 @@ C:\Users\Andrew\Documents\GitHub\battlehack\webviewApp\bin\res\drawable-hdpi\ic_
 C:\Users\Andrew\Documents\GitHub\battlehack\webviewApp\bin\res\drawable-ldpi\ic_launcher.png \
 C:\Users\Andrew\Documents\GitHub\battlehack\webviewApp\bin\res\drawable-mdpi\ic_launcher.png \
 C:\Users\Andrew\Documents\GitHub\battlehack\webviewApp\bin\res\drawable-xhdpi\ic_launcher.png \
+C:\Users\Andrew\Documents\GitHub\battlehack\webviewApp\assets\index.html \
 C:\Users\Andrew\Documents\GitHub\battlehack\webviewApp\bin\AndroidManifest.xml \

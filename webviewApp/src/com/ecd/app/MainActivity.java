@@ -2,6 +2,8 @@ package com.ecd.app;
 
 import android.app.Activity;
 import android.os.Bundle;
+import com.ecd.*;
+import android.webkit.*;
 
 public class MainActivity extends Activity
 {
@@ -11,5 +13,7 @@ public class MainActivity extends Activity
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+        WebView myWebView = (WebView) findViewById(R.id.webview);
+		myWebView.loadUrl("file:///android_asset/index.html");
     }
 }
