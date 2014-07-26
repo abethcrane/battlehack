@@ -5,6 +5,8 @@ import android.content.Context;
 import android.os.Handler;
 import android.app.Activity;
 import android.util.*;
+import java.util.*;
+
 
 
 public class BeaconFinder {
@@ -17,7 +19,7 @@ public class BeaconFinder {
 	private Activity context;
 	private byte[] beaconUuid;
 	public BeaconFinder(BeaconCallback beaconCallback,byte[] beaconUuid, Activity context) {
-		this.beaconUuid
+		this.beaconUuid = beaconUuid;
 		this.context = context;
 		bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
 		bluetoothAdapter = bluetoothManager.getAdapter();
@@ -60,11 +62,12 @@ public class BeaconFinder {
 		Log.i("main","minor: "+ min);
 		if (Arrays.equals(beaconUuid,uuid)) {
 			Log.i("blelib", "found beacon!");
+			String s = "";
 			for (byte b : uuid) {
 				s += "0x" + String.format("%02x",b) + ",";
 			}
 			Log.i("blelib",s);
-			beaconCallback.beaconFound(major,minor,uuid);
+			beaconCallback.beaconFound(maj,min,uuid);
 		}
 
 	}

@@ -1,5 +1,0 @@
-..\src\com\ecd\BeaconFinder.java:56: cannot find symbol
-symbol: method addDevice(android.bluetooth.BluetoothDevice,int,byte[])
-        			addDevice(device,rssi,scanRecord);
-        			^
-1 error
