@@ -17,9 +17,9 @@ class AdminIndexView(admin.AdminIndexView):
   @expose('/')
   def index(self):
     if not login.current_user.is_authenticated():
-      return redirect(url_for('login'))
+      return redirect('/login')
     return super(AdminIndexView, self).index()
 
-admin = admin.Admin(app)
+admin = admin.Admin(app, index_view=AdminIndexView())
 
 admin.add_view(VendorAdmin(db.session))

@@ -20,7 +20,7 @@ def auth_login():
     u = models.User.authenticate_or_none(request.form['username'], request.form['password'])
     if u:
       login.login_user(u)
-      return redirect(url_for('root'))
+      return redirect('/admin')
     else:
       error = True
 
