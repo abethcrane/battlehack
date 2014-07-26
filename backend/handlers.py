@@ -81,6 +81,8 @@ def redeem_token():
     return jsonify({'status': 'error', 'message': 'no such vendor'})
 
   result = submit_for_settlement(request.form['transaction_id'], vendor)
+  db.session.add(models.Order(login.current_user.organisation, vendor, vendor.item, vendor.price))
+  db.session.commit()
   return jsonify(result)
 
 
@@ -99,6 +101,8 @@ def client_instant():
     return jsonify(result)
 
   result = submit_for_settlement(result['transaction_id'], vendor)
+  db.session.add(models.Order(vendor.organisation, vendor, vendor.item_name, vendor.price))
+  db.session.commit()
   return jsonify(result)
 
 

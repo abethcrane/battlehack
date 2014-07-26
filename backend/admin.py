@@ -25,6 +25,13 @@ class VendorAdmin(BaseOrganisationFilteredModelView):
     return login.current_user.is_authenticated()
 
 
+class OrdersView(BaseOrganisationFilteredModelView):
+  action_disallowed_list = ['edit', 'delete']
+  column_sortable_list = ('vendor', 'item', 'price', 'timestamp')
+
+  def __init__(self, session):
+    super(OrdersView, self).__init__(models.Order, session, name='Order history')
+
 
 class AdminIndexView(admin.AdminIndexView):
   @expose('/')
@@ -56,3 +63,4 @@ def bulk_update():
 
 admin = admin.Admin(app, index_view=AdminIndexView(name='Bulk update'))
 admin.add_view(VendorAdmin(db.session))
+admin.add_view(OrdersView(db.session))

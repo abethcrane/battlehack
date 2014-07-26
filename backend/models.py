@@ -1,4 +1,4 @@
-import bcrypt
+import bcrypt, datetime
 
 from server import db
 
@@ -13,6 +13,9 @@ class Vendor(db.Model):
 
   organisation = db.relationship('Organisation')
   organisation_id = db.Column(db.Integer(), db.ForeignKey('organisation.id'))
+
+  def __unicode__(self):
+    return self.vendor
 
   @classmethod
   def filter_by_ids(cls, ids):
@@ -78,3 +81,22 @@ class Organisation(db.Model):
 
   def __unicode__(self):
     return self.name
+
+class Order(db.Model):
+  id = db.Column(db.Integer, primary_key=True)
+
+  organisation = db.relationship('Organisation', backref='orders')
+  organisation_id = db.Column(db.Integer(), db.ForeignKey('organisation.id'))
+
+  vendor = db.relationship('Vendor')
+  vendor_id = db.Column(db.Integer(), db.ForeignKey('vendor.id'))
+
+  item = db.Column(db.Unicode(100))
+  price = db.Column(db.Integer())
+  timestamp = db.Column(db.DateTime(), default=datetime.datetime.utcnow)
+
+  def __init__(self, org, vend, item, price):
+    self.organisation = org
+    self.vendor = vend
+    self.item = item
+    self.price = price
