@@ -1,188 +1,109 @@
 package com.battlehack.smallsolution;
 
-import java.util.Locale;
-
-import android.app.Activity;
-import android.app.ActionBar;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
-import android.support.v13.app.FragmentPagerAdapter;
+import android.app.ListActivity;
+import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.view.ViewPager;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
+import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.ArrayAdapter;
+import android.widget.EditText;
+import android.widget.ListView;
+import android.widget.Toast;
 
 
-public class HomeActivity extends Activity implements ActionBar.TabListener {
+import com.braintreepayments.api.dropin.BraintreePaymentActivity;
+import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.RequestParams;
+import com.loopj.android.http.TextHttpResponseHandler;
 
-    /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory. If this becomes too memory intensive, it
-     * may be best to switch to a
-     * {@link android.support.v13.app.FragmentStatePagerAdapter}.
-     */
-    SectionsPagerAdapter mSectionsPagerAdapter;
+import org.json.JSONObject;
 
-    /**
-     * The {@link ViewPager} that will host the section contents.
-     */
-    ViewPager mViewPager;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
+public class HomeActivity extends ListActivity {
+    private Set<String> beaconsFound = new HashSet<String>();
+    private ArrayAdapter<String> adapter;
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+        String[] values = new String[]{"Android", "iPhone", "WindowsMobile", "Blackberry", "WebOS", "Ubuntu", "Windows7", "Max OS X", "Linux", "OS/2"};
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, values);
+        setListAdapter(adapter);
+    }
 
-        // Set up the action bar.
-        final ActionBar actionBar = getActionBar();
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+    public void onStart() {
+        super.onStart();
+        startScanning();
+    }
 
-        // Create the adapter that will return a fragment for each of the three
-        // primary sections of the activity.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getFragmentManager());
+    public void rescanClick(View v) {
+        startScanning();
+    }
 
-        // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.pager);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
+    public void startScanning() {
+        beaconsFound = new HashSet<String>();
+        byte[] toComp = {(byte)0xd5,(byte)0x70,(byte)0x92,(byte)0xac,   (byte)0xdf,(byte)0xaa,(byte)0x44,(byte)0x6c,    (byte)0x8e,(byte)0xf3,(byte)0xc8,(byte)0x1a,    (byte)0xa2,(byte)0x28,(byte)0x15,(byte)0xb5};
+        BeaconFinder bf = new BeaconFinder(bc, toComp, this);
+        bf.startSearching();
+        Toast toast = Toast.makeText(getApplicationContext(), "Starting scan...", Toast.LENGTH_SHORT);
+        toast.show();
+    }
 
-        // When swiping between different sections, select the corresponding
-        // tab. We can also use ActionBar.Tab#select() to do this if we have
-        // a reference to the Tab.
-        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+
+    private BeaconCallback bc = new BeaconCallback() {
+        public void beaconFound(String major, String minor, byte[] beaconUuid) {
+            String text = "Major: "+major + " minor: " + minor;
+            if (!beaconsFound.contains(text)) {
+                beaconsFound.add(text);
+                Toast toast = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT);
+                toast.show();
+            }
+        }
+    };
+
+    protected void onListItemClick(ListView l, View v, int position, long id) {
+        String item = (String) getListAdapter().getItem(position);
+        Toast.makeText(this, item + " selected", Toast.LENGTH_LONG).show();
+        AsyncHttpClient client = new AsyncHttpClient();
+        client.get("http://bh.epochfail.com:5000/client/get_token/" + item, new TextHttpResponseHandler() {
             @Override
-            public void onPageSelected(int position) {
-                actionBar.setSelectedNavigationItem(position);
+            public void onSuccess(String clientToken) {
+                Intent intent = new Intent(getApplicationContext(), BraintreePaymentActivity.class);
+                Log.v("HEEE", clientToken);
+
+                String actToken = "";
+                try {
+                    JSONObject token = new JSONObject(clientToken);
+                    actToken = token.getString("token");
+                } catch (Exception e) {
+
+                }
+                Log.v("Mytoken", actToken);
+                intent.putExtra(BraintreePaymentActivity.EXTRA_CLIENT_TOKEN, actToken);
+                // REQUEST_CODE is arbitrary and is only used within this activity.
+                Log.v("HA?", "HHHH");
+                startActivityForResult(intent, 434);
             }
         });
-
-        // For each of the sections in the app, add a tab to the action bar.
-        for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
-            // Create a tab with text corresponding to the page title defined by
-            // the adapter. Also specify this Activity object, which implements
-            // the TabListener interface, as the callback (listener) for when
-            // this tab is selected.
-            actionBar.addTab(
-                    actionBar.newTab()
-                            .setText(mSectionsPagerAdapter.getPageTitle(i))
-                            .setTabListener(this));
-        }
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.home, menu);
-        return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onTabSelected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-        // When the given tab is selected, switch to the corresponding page in
-        // the ViewPager.
-        mViewPager.setCurrentItem(tab.getPosition());
-    }
-
-    @Override
-    public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-    }
-
-    @Override
-    public void onTabReselected(ActionBar.Tab tab, FragmentTransaction fragmentTransaction) {
-    }
-
-    /**
-     * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
-     * one of the sections/tabs/pages.
-     */
-    public class SectionsPagerAdapter extends FragmentPagerAdapter {
-
-        public SectionsPagerAdapter(FragmentManager fm) {
-            super(fm);
-        }
-
-        @Override
-        public Fragment getItem(int position) {
-            // getItem is called to instantiate the fragment for the given page.
-            // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1);
-        }
-
-        @Override
-        public int getCount() {
-            // Show 2 total pages.
-            return 2;
-        }
-
-        @Override
-        public CharSequence getPageTitle(int position) {
-            Locale l = Locale.getDefault();
-            switch (position) {
-                case 0:
-                    return getString(R.string.title_section1).toUpperCase(l);
-                case 1:
-                    return getString(R.string.title_section2).toUpperCase(l);
-            }
-            return null;
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == 434 && resultCode == BraintreePaymentActivity.RESULT_OK) {
+            String paymentMethodNonce = data.getStringExtra(BraintreePaymentActivity.EXTRA_PAYMENT_METHOD_NONCE);
+            Log.v("LOL", paymentMethodNonce);
+            AsyncHttpClient client = new AsyncHttpClient();
+            RequestParams rp = new RequestParams();
+            rp.add("payment_method_nonce", paymentMethodNonce);
+            client.post("http://bh.epochfail.com:5000/client/finish", rp, new HTTPHandlers().getHTTPClientFinishedHandler(this));
+        } else {
+            Log.v("Fail", "Failed with " + requestCode + " - " + resultCode);
         }
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
 
-        public PlaceholderFragment() {
-        }
-
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            switch (getArguments().getInt(ARG_SECTION_NUMBER)) {
-                case 1:
-                    return inflater.inflate(R.layout.fragment_home, container, false);
-                case 2:
-                    return inflater.inflate(R.layout.fragment_map, container, false);
-            }
-            return null;
-        }
-    }
 
 }

@@ -6,5 +6,6 @@
     <string name="title_section2">Find Vendors</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
+    <string name="purchased_title" formatted="false">Thank you for purchasing from %s, your code is %s.</string>
 
 </resources>
