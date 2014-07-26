@@ -27,13 +27,20 @@ import java.util.Set;
 public class HomeActivity extends ListActivity {
     private Set<String> beaconsFound = new HashSet<String>();
     private Map<Integer, Vendor> vendorMap = new HashMap<Integer, Vendor>();
-    private ArrayAdapter<String> adapter;
+    private VendorAdapter adapter;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new ArrayList<String>());
-        setListAdapter(adapter);
+
+        Vendor vendorData[] = new Vendor[]{};
+        adapter = new VendorAdapter(this, R.layout.list_vendor_row);
+
+        ListView list = (ListView)findViewById(android.R.id.list);
+
+        View header = (View)getLayoutInflater().inflate(R.layout.list_vendor_header, null);
+        list.addHeaderView(header);
+        list.setAdapter(adapter);
     }
 
     public void onStart() {
@@ -69,7 +76,7 @@ public class HomeActivity extends ListActivity {
                     public void infoFetchedSuccess(String major, String minor, Vendor v) {
                         Integer upTo = adapter.getCount();
                         vendorMap.put(upTo, v);
-                        adapter.add(v.name + " selling " + v.item + " for $" + v.price);
+                        adapter.add(v);
                         adapter.notifyDataSetChanged();
                         notifyInRange(v.item, v.name, v.id);
                     }
@@ -83,7 +90,8 @@ public class HomeActivity extends ListActivity {
     };
 
     protected void onListItemClick(ListView l, View v, int position, long id) {
-        Integer pos = position;
+        if (position == 0) return;
+        Integer pos = position - 1;
         Intent paymentScreen = new Intent(getApplicationContext(), PaymentLoadingActivity.class);
         paymentScreen.putExtra("vendor_id", vendorMap.get(pos).id);
         paymentScreen.putExtra("vendor_name", vendorMap.get(pos).name);

@@ -15,19 +15,28 @@ public class PaymentLoadingActivity extends Activity implements HTTPHandlers.Pay
 
     private String vendorName;
     private String vendorId;
+    private boolean active;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         vendorName = getIntent().getStringExtra("vendor_name");
         vendorId = getIntent().getStringExtra("vendor_id");
+        active = true;
         setContentView(R.layout.payment_loading_activity);
         new HTTPHandlers().fetchPaymentToken(this);
         setText(String.format(getString(R.string.payment_loading), vendorName));
     }
 
     @Override
+    public void onStop() {
+        super.onStop();
+        active = false;
+    }
+
+    @Override
     public void tokenFetchedSuccess(String token) {
+        if (!active) return;
         Intent intent = new Intent(getApplicationContext(), BraintreePaymentActivity.class);
         intent.putExtra(BraintreePaymentActivity.EXTRA_CLIENT_TOKEN, token);
         startActivityForResult(intent, 434);
@@ -35,6 +44,7 @@ public class PaymentLoadingActivity extends Activity implements HTTPHandlers.Pay
 
     @Override
     public void tokenFetchedFail() {
+        if (!active) return;
         Toast toast = Toast.makeText(getApplicationContext(), getString(R.string.payment_error), Toast.LENGTH_SHORT);
         toast.show();
         Log.e("Payment", "Failed while fetching token");
@@ -47,6 +57,9 @@ public class PaymentLoadingActivity extends Activity implements HTTPHandlers.Pay
             String paymentMethodNonce = data.getStringExtra(BraintreePaymentActivity.EXTRA_PAYMENT_METHOD_NONCE);
             new HTTPHandlers().finalisedPayment(paymentMethodNonce, vendorId, this);
             setText(String.format(getString(R.string.payment_processing), vendorName));
+            active = true;
+        } else if (resultCode == BraintreePaymentActivity.RESULT_CANCELED) {
+            finish();
         } else {
             Toast toast = Toast.makeText(getApplicationContext(), getString(R.string.payment_error), Toast.LENGTH_SHORT);
             toast.show();
@@ -56,6 +69,7 @@ public class PaymentLoadingActivity extends Activity implements HTTPHandlers.Pay
     }
 
     public void paymentFinishedSuccess(String code) {
+        if (!active) return;
         Intent successScreen = new Intent(getApplicationContext(), Purchased.class);
         successScreen.putExtra("name", vendorName);
         successScreen.putExtra("code", code);
@@ -65,6 +79,7 @@ public class PaymentLoadingActivity extends Activity implements HTTPHandlers.Pay
 
     @Override
     public void paymentFinishedFail() {
+        if (!active) return;
         Toast toast = Toast.makeText(getApplicationContext(), getString(R.string.payment_error), Toast.LENGTH_SHORT);
         toast.show();
         Log.e("Payment", "Failed while finalising");

@@ -42,7 +42,6 @@ public class HTTPHandlers {
 
         @Override
         public void onSuccess(JSONObject response) {
-            Log.d("Resp", response.toString());
             try {
                 JSONArray arr = response.getJSONArray("vendors");
                 JSONObject vendOb = arr.getJSONObject(0);

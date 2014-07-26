@@ -1,7 +1,11 @@
 package com.battlehack.smallsolution;
 
+import android.graphics.drawable.Drawable;
+import android.util.Log;
+
 import org.json.JSONException;
 import org.json.JSONObject;
+
 
 public class Vendor {
 
@@ -26,7 +30,5 @@ public class Vendor {
         String url = obj.getString("url");
         return new Vendor(id, name, price, org, item, url);
     }
-
-
 
 }
