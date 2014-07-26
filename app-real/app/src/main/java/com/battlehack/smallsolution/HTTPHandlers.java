@@ -40,7 +40,6 @@ public class HTTPHandlers {
 
         public void begin() {
             AsyncHttpClient client = new AsyncHttpClient();
-            Log.d("AA", "Started search for " + major + " " + minor);
             client.get(String.format("http://bh.epochfail.com:5000/vendors/find?ids=%s:%s", major, minor), this);
         }
 
@@ -48,7 +47,6 @@ public class HTTPHandlers {
         public void onSuccess(String servResp) {
             String vendorID = "";
             String vendorName = "";
-            Log.d("Gotback", servResp);
             try {
                 JSONObject token = new JSONObject(servResp);
                 JSONArray arr = token.getJSONArray("vendors");
@@ -105,7 +103,6 @@ public class HTTPHandlers {
 
         @Override
         public void onSuccess(String servResp) {
-            Log.e("LOL4", servResp);
             String keyW = "";
             try {
                 JSONObject token = new JSONObject(servResp);
