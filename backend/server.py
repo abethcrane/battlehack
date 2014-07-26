@@ -26,8 +26,14 @@ if __name__ == '__main__':
   u = User()
   u.username = 'evgeny'
   u.set_password('potato')
+  o = Organisation()
+  o.name = 'The Big Issue'
   db.session.add(u)
-  db.session.commit()
+  db.session.add(o)
+  try:
+    db.session.commit()
+  except:  # IntegrityError
+    pass
 
   braintree.Configuration.configure(braintree.Environment.Sandbox,
       merchant_id=config.merchant_id,

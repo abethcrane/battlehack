@@ -76,7 +76,7 @@ public class HomeActivity extends ListActivity {
                 beaconsFound.add(text);
                 new HTTPHandlers().fetchVendorInfo(major, minor, new HTTPHandlers.VendorInfoCallback() {
                     @Override
-                    public void infoFetched(String major, String minor, String vendor_id, String vendor_name) {
+                    public void infoFetchedSuccess(String major, String minor, String vendor_id, String vendor_name) {
                         Integer upTo = adapter.getCount();
                         idMap.put(upTo, vendor_id);
                         nameMap.put(upTo, vendor_name);
@@ -84,6 +84,10 @@ public class HomeActivity extends ListActivity {
                         adapter.notifyDataSetChanged();
                         String item_name = "The Big Issue";
                         notifyInRange(item_name, vendor_name, vendor_id);
+                    }
+
+                    public void infoFetchedFail(String major, String minor) {
+
                     }
                 });
             }

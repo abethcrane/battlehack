@@ -111,5 +111,6 @@ def find_vendors():
       'bluetooth': v.bluetooth,
       'vendor': v.vendor,
       'price': v.price,
+      'organisation': v.organisation.name,
   } for v in vendors]
   return jsonify({'status': 'ok', 'vendors': vendors})
