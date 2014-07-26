@@ -1,5 +1,6 @@
 package com.battlehack.smallsolution;
 
+import android.app.Activity;
 import android.app.ListActivity;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -23,6 +24,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 public class HomeActivity extends ListActivity {
     private Set<String> beaconsFound = new HashSet<String>();
@@ -46,6 +48,15 @@ public class HomeActivity extends ListActivity {
     public void onStart() {
         super.onStart();
         startScanning();
+
+        // Schedule the app to look for bluetooth tokens every minute
+        //final BackgroundAsync pollBluetooth = new BackgroundAsync(new BackgroundNotifier(5), new BeaconRunnable(bc, this), 10, 60, TimeUnit.SECONDS);
+
+        final Activity a = this;
+        new Thread ( new Runnable () { public void run () {
+            new BackgroundNotifier(5).scheduleAtFixedRate(new BeaconRunnable(bc, a), 10, 60, TimeUnit.SECONDS);
+            //pollBluetooth.doInBackground();
+        }}).start();
     }
 
     public void rescanClick() {
@@ -67,25 +78,25 @@ public class HomeActivity extends ListActivity {
 
     private BeaconCallback bc = new BeaconCallback() {
         public void beaconFound(String major, String minor, byte[] beaconUuid) {
-            String text = "Major: "+major + " minor: " + minor;
-            Log.v("beacon callback", text);
-            if (!beaconsFound.contains(text)) {
-                beaconsFound.add(text);
-                new HTTPHandlers().fetchVendorInfo(major, minor, new HTTPHandlers.VendorInfoCallback() {
-                    @Override
-                    public void infoFetchedSuccess(String major, String minor, Vendor v) {
-                        Integer upTo = adapter.getCount();
-                        vendorMap.put(upTo, v);
-                        adapter.add(v);
-                        adapter.notifyDataSetChanged();
-                        notifyInRange(v.item, v.name, v.id);
-                    }
+        String text = "Major: "+major + " minor: " + minor;
+        Log.v("beacon callback", text);
+        if (!beaconsFound.contains(text)) {
+            beaconsFound.add(text);
+            new HTTPHandlers().fetchVendorInfo(major, minor, new HTTPHandlers.VendorInfoCallback() {
+                @Override
+                public void infoFetchedSuccess(String major, String minor, Vendor v) {
+                    Integer upTo = adapter.getCount();
+                    vendorMap.put(upTo, v);
+                    adapter.add(v);
+                    adapter.notifyDataSetChanged();
+                    notifyInRange(v.item, v.name, v.id);
+                }
 
-                    public void infoFetchedFail(String major, String minor) {
+                public void infoFetchedFail(String major, String minor) {
 
-                    }
-                });
-            }
+                }
+            });
+        }
         }
     };
 
