@@ -1,16 +1,5 @@
-..\src\com\ecd\BeaconFinder.java:13: cannot find symbol
-symbol  : variable context
-location: class com.ecd.BeaconFinder
-		this.context = context;
-		    ^
-..\src\com\ecd\BeaconFinder.java:16: cannot find symbol
-symbol  : variable handler
-location: class com.ecd.BeaconFinder
-		handler = new Handler();
-		^
-..\src\com\ecd\BeaconFinder.java:16: cannot find symbol
-symbol  : class Handler
-location: class com.ecd.BeaconFinder
-		handler = new Handler();
-		              ^
-3 errors
+..\src\com\ecd\BeaconFinder.java:56: cannot find symbol
+symbol: method addDevice(android.bluetooth.BluetoothDevice,int,byte[])
+        			addDevice(device,rssi,scanRecord);
+        			^
+1 error
