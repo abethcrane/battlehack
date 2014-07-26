@@ -140,8 +140,8 @@ public class HomeActivity extends ListActivity {
 
         // Creates an explicit intent for an Activity in your app
         Intent resultIntent = new Intent(this, PaymentLoadingActivity.class);
-        resultIntent.putExtra("name", vendor_name);
-        resultIntent.putExtra("id", vendor_id);
+        resultIntent.putExtra("vendor_id", vendor_id);
+        resultIntent.putExtra("vendor_name", vendor_name);
     /* The stack builder object will contain an artificial back stack for the
      started Activity.
      This ensures that navigating backward from the Activity leads out of
