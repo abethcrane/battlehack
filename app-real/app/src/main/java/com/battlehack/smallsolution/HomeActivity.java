@@ -95,6 +95,8 @@ public class HomeActivity extends ListActivity {
         Intent paymentScreen = new Intent(getApplicationContext(), PaymentLoadingActivity.class);
         paymentScreen.putExtra("vendor_id", vendorMap.get(pos).id);
         paymentScreen.putExtra("vendor_name", vendorMap.get(pos).name);
+        paymentScreen.putExtra("price", vendorMap.get(pos).name);
+        paymentScreen.putExtra("item_name", vendorMap.get(pos).item);
         startActivity(paymentScreen);
     }
 

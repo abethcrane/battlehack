@@ -11,11 +11,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.braintreepayments.api.dropin.BraintreePaymentActivity;
+import com.braintreepayments.api.dropin.Customization;
 
 public class PaymentLoadingActivity extends Activity implements HTTPHandlers.PaymentTokenCallback, HTTPHandlers.PaymentFinishedCallback {
 
     private String vendorName;
     private String vendorId;
+    private String price;
+    private String itemName;
     private boolean active;
 
     @Override
@@ -23,6 +26,8 @@ public class PaymentLoadingActivity extends Activity implements HTTPHandlers.Pay
         super.onCreate(savedInstanceState);
         vendorName = getIntent().getStringExtra("vendor_name");
         vendorId = getIntent().getStringExtra("vendor_id");
+        price = getIntent().getStringExtra("price");
+        itemName = getIntent().getStringExtra("item_name");
         active = true;
         setContentView(R.layout.payment_loading_activity);
         new HTTPHandlers().fetchPaymentToken(this);
@@ -39,6 +44,12 @@ public class PaymentLoadingActivity extends Activity implements HTTPHandlers.Pay
     public void tokenFetchedSuccess(String token) {
         if (!active) return;
         Intent intent = new Intent(getApplicationContext(), BraintreePaymentActivity.class);
+        Customization customization = new Customization.CustomizationBuilder()
+                .primaryDescription(itemName)
+                .amount(price)
+                .submitButtonText("Buy")
+                .build();
+        intent.putExtra(BraintreePaymentActivity.EXTRA_CUSTOMIZATION, customization);
         intent.putExtra(BraintreePaymentActivity.EXTRA_CLIENT_TOKEN, token);
         startActivityForResult(intent, 434);
     }
