@@ -20,11 +20,20 @@ class Vendor(db.Model):
   def get_by_id(cls, vid):
     return cls.query.filter(cls.id==vid).first()
 
+  @classmethod
+  def update_bulk(cls, user, bluetooth, name, keyword, price):
+    values = dict(bluetooth=bluetooth, vendor=name, keyword=keyword, price=price)
+    values = {k:v for k,v in values.iteritems() if v}
+    cls.query.filter(cls.organisation==user.organisation).update(values)
+    db.session.commit()
+
 
 class User(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   username = db.Column(db.Unicode(1000), nullable=False)
   password = db.Column(db.String(1000), nullable=False)
+  organisation = db.relationship('Organisation')
+  organisation_id = db.Column(db.Integer(), db.ForeignKey('organisation.id'))
 
   @classmethod
   def _encrypt_pass(cls, password):
