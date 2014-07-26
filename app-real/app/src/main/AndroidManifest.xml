@@ -29,7 +29,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".Purchased"
+            android:name=".FinishedFragmentActivity"
             android:label="@string/title_purchased" >
         </activity>
         <activity

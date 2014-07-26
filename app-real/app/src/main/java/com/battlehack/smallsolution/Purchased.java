@@ -3,57 +3,47 @@ package com.battlehack.smallsolution;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.service.textservice.SpellCheckerService;
+import android.support.v4.app.Fragment;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.facebook.*;
 import com.facebook.model.*;
 import com.facebook.widget.*;
 
-public class Purchased extends Activity {
-    // Initializing variables
-    EditText inputName;
-    EditText inputEmail;
+public class Purchased extends Fragment {
+    private Vendor v;
+    private String code;
 
     @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.purchased);
-        TextView tv = (TextView) findViewById(R.id.Message);
-        Intent i = getIntent();
-        tv.setText(String.format(getString(R.string.purchased_result), i.getStringExtra("name"), i.getStringExtra("code")));
+    public View onCreateView(LayoutInflater inflater,
+                             ViewGroup container, Bundle savedInstanceState) {
+        View rootView = inflater.inflate(
+                R.layout.purchased, container, false);
+        Bundle args = getArguments();
+        TextView tv = (TextView) rootView.findViewById(R.id.Message);
+        v = (Vendor) args.getSerializable("vendor");
+        code = args.getString("code");
+        tv.setText(String.format(getString(R.string.purchased_result), v.item, v.name));
+        v.getImageAsync((ImageView) rootView.findViewById(R.id.purchImg));
+        return rootView;
 
         //uiHelper = new UiLifecycleHelper(this, null);
         //uiHelper.onCreate(savedInstanceState);
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.other, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            // action with ID action_settings was selected
-            case R.id.action_settings:
-                Intent i = new Intent(getApplicationContext(), Settings.class);
-                startActivity(i);
-                break;
-            default:
-                break;
-        }
-        return true;
-    }
 /*
     // facebook sdk witchcraft
     private UiLifecycleHelper uiHelper;

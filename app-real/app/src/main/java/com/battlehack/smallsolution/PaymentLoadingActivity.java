@@ -90,8 +90,8 @@ public class PaymentLoadingActivity extends Activity implements HTTPHandlers.Pay
 
     public void paymentFinishedSuccess(String code) {
         if (!active) return;
-        Intent successScreen = new Intent(getApplicationContext(), Purchased.class);
-        successScreen.putExtra("name", v.name);
+        Intent successScreen = new Intent(getApplicationContext(), FinishedFragmentActivity.class);
+        successScreen.putExtra("vendor", v);
         successScreen.putExtra("code", code);
         startActivity(successScreen);
         finish();

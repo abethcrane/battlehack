@@ -6,7 +6,8 @@
     <string name="title_section2">Find Vendors</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
-    <string name="purchased_result" formatted="false">Thank you for purchasing from %s, your code is %s.</string>
+    <string name="swipe_message">Swipe right to see your code</string>
+    <string name="purchased_result" formatted="false">Thank you for purchasing %s from %s.</string>
     <string name="payment_loading" formatted="false">Loading payment...</string>
     <string name="payment_processing" formatted="false">Processing payment...</string>
     <string name="payment_error" formatted="false">An error occured while processing your payment.</string>
