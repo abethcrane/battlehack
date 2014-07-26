@@ -1,2 +1,2 @@
-C:\Users\Andrew\Documents\GitHub\battlehack\webviewApp\bin\AndroidManifest.xml : \
-C:\Users\Andrew\Documents\GitHub\battlehack\webviewApp\AndroidManifest.xml \
+/Users/beth/Dropbox/Projects/battlehack/webviewApp/bin/AndroidManifest.xml : \
+/Users/beth/Dropbox/Projects/battlehack/webviewApp/AndroidManifest.xml \
