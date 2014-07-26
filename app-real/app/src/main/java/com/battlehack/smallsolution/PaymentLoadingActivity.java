@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 
 import com.braintreepayments.api.dropin.BraintreePaymentActivity;
 
@@ -39,6 +41,13 @@ public class PaymentLoadingActivity extends Activity implements HTTPHandlers.Pay
         successScreen.putExtra("name", getIntent().getStringExtra("vendor_name"));
         successScreen.putExtra("code", code);
         startActivity(successScreen);
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.other, menu);
+        return true;
     }
 
 }
