@@ -1,14 +1,11 @@
 package com.battlehack.smallsolution;
 
-import android.app.Activity;
-import android.content.Intent;
-import android.util.Log;
-
-import com.braintreepayments.api.dropin.BraintreePaymentActivity;
 import com.loopj.android.http.AsyncHttpClient;
+import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.TextHttpResponseHandler;
 
+import org.apache.http.Header;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -27,7 +24,7 @@ public class HTTPHandlers {
         new HTTPInstantPayment(nonce, vendorId, callback).begin();
     }
 
-    private class HTTPVendorFind extends TextHttpResponseHandler {
+    private class HTTPVendorFind extends JsonHttpResponseHandler {
 
         private String major, minor;
         private VendorInfoCallback callback;
@@ -44,22 +41,22 @@ public class HTTPHandlers {
         }
 
         @Override
-        public void onSuccess(String servResp) {
+        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
             String vendorID = "";
             String vendorName = "";
             try {
-                JSONObject token = new JSONObject(servResp);
-                JSONArray arr = token.getJSONArray("vendors");
+                JSONArray arr = response.getJSONArray("vendors");
                 JSONObject vendOb = arr.getJSONObject(0);
                 vendorID = vendOb.getString("id");
                 vendorName = vendOb.getString("vendor");
             } catch (Exception e) {
+                callback.infoFetchedFail(major, minor);
             }
-            callback.infoFetched(major, minor, vendorID, vendorName);
+            callback.infoFetchedSuccess(major, minor, vendorID, vendorName);
         }
     }
 
-    private class HTTPPaymentTokenGet extends TextHttpResponseHandler {
+    private class HTTPPaymentTokenGet extends JsonHttpResponseHandler {
         private PaymentTokenCallback callback;
 
         public HTTPPaymentTokenGet(PaymentTokenCallback callback) {
@@ -72,18 +69,18 @@ public class HTTPHandlers {
         }
 
         @Override
-        public void onSuccess(String clientToken) {
+        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
             String actToken = "";
             try {
-                JSONObject token = new JSONObject(clientToken);
-                actToken = token.getString("token");
+                actToken = response.getString("token");
             } catch (Exception e) {
+                callback.tokenFetchedFail();
             }
-            callback.tokenFetched(actToken);
+            callback.tokenFetchedSuccess(actToken);
         }
     }
 
-    private class HTTPInstantPayment extends TextHttpResponseHandler {
+    private class HTTPInstantPayment extends JsonHttpResponseHandler {
         private String nonce, vendorId;
         private PaymentFinishedCallback callback;
 
@@ -102,27 +99,32 @@ public class HTTPHandlers {
         }
 
         @Override
-        public void onSuccess(String servResp) {
+        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
             String keyW = "";
             try {
-                JSONObject token = new JSONObject(servResp);
-                keyW = token.getString("keyword");
+                keyW = response.getString("keyword");
             } catch (Exception e) {
+                callback.paymentFinishedFail();
             }
-            callback.paymentFinished(keyW);
+            callback.paymentFinishedSuccess(keyW);
         }
+
+
 
     }
 
     public interface VendorInfoCallback {
-        public void infoFetched(String major, String minor, String Id, String name);
+        public void infoFetchedSuccess(String major, String minor, String Id, String name);
+        public void infoFetchedFail(String major, String minor);
     }
 
     public interface PaymentTokenCallback {
-        public void tokenFetched(String token);
+        public void tokenFetchedSuccess(String token);
+        public void tokenFetchedFail();
     }
 
     public interface  PaymentFinishedCallback {
-        public void paymentFinished(String code);
+        public void paymentFinishedSuccess(String code);
+        public void paymentFinishedFail();
     }
 }

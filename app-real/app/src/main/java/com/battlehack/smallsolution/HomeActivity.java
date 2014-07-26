@@ -67,12 +67,16 @@ public class HomeActivity extends ListActivity {
                 beaconsFound.add(text);
                 new HTTPHandlers().fetchVendorInfo(major, minor, new HTTPHandlers.VendorInfoCallback() {
                     @Override
-                    public void infoFetched(String major, String minor, String Id, String name) {
+                    public void infoFetchedSuccess(String major, String minor, String Id, String name) {
                         Integer upTo = adapter.getCount();
                         idMap.put(upTo, Id);
                         nameMap.put(upTo, name);
                         adapter.add(name);
                         adapter.notifyDataSetChanged();
+                    }
+
+                    public void infoFetchedFail(String major, String minor) {
+
                     }
                 });
             }
