@@ -3,7 +3,6 @@ package com.battlehack.smallsolution;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
-import com.loopj.android.http.TextHttpResponseHandler;
 
 import org.apache.http.Header;
 import org.json.JSONArray;
@@ -20,7 +19,7 @@ public class HTTPHandlers {
         new HTTPPaymentTokenGet(callback).begin();
     }
 
-    public void finialisedPayment(String nonce, String vendorId, PaymentFinishedCallback callback) {
+    public void finalisedPayment(String nonce, String vendorId, PaymentFinishedCallback callback) {
         new HTTPInstantPayment(nonce, vendorId, callback).begin();
     }
 
@@ -36,12 +35,11 @@ public class HTTPHandlers {
         }
 
         public void begin() {
-            AsyncHttpClient client = new AsyncHttpClient();
-            client.get(String.format("http://bh.epochfail.com:5000/vendors/find?ids=%s:%s", major, minor), this);
+            getClient().get(String.format("http://bh.epochfail.com:5000/vendors/find?ids=%s:%s", major, minor), this);
         }
 
         @Override
-        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+        public void onSuccess(JSONObject response) {
             String vendorID = "";
             String vendorName = "";
             try {
@@ -54,6 +52,12 @@ public class HTTPHandlers {
             }
             callback.infoFetchedSuccess(major, minor, vendorID, vendorName);
         }
+
+        @Override
+        public void onFailure(Throwable e, JSONArray errorResponse) {
+            callback.infoFetchedFail(major, minor);
+        }
+
     }
 
     private class HTTPPaymentTokenGet extends JsonHttpResponseHandler {
@@ -64,12 +68,11 @@ public class HTTPHandlers {
         }
 
         public void begin() {
-            AsyncHttpClient client = new AsyncHttpClient();
-            client.get("http://bh.epochfail.com:5000/client/get_token/1337:1337", this);
+            getClient().get("http://bh.epochfail.com:5000/client/get_token/1337:1337", this);
         }
 
         @Override
-        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+        public void onSuccess(JSONObject response) {
             String actToken = "";
             try {
                 actToken = response.getString("token");
@@ -78,6 +81,12 @@ public class HTTPHandlers {
             }
             callback.tokenFetchedSuccess(actToken);
         }
+
+        @Override
+        public void onFailure(Throwable e, JSONArray errorRespotnse) {
+            callback.tokenFetchedFail();
+        }
+
     }
 
     private class HTTPInstantPayment extends JsonHttpResponseHandler {
@@ -91,15 +100,14 @@ public class HTTPHandlers {
         }
 
         public void begin() {
-            AsyncHttpClient client = new AsyncHttpClient();
             RequestParams rp = new RequestParams();
             rp.add("payment_method_nonce", nonce);
             rp.add("vendor_id", vendorId);
-            client.post("http://bh.epochfail.com:5000/client/instant", rp, this);
+            getClient().post("http://bh.epochfail.com:5000/client/instant", rp, this);
         }
 
         @Override
-        public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+        public void onSuccess(JSONObject response) {
             String keyW = "";
             try {
                 keyW = response.getString("keyword");
@@ -109,8 +117,10 @@ public class HTTPHandlers {
             callback.paymentFinishedSuccess(keyW);
         }
 
-
-
+        @Override
+        public void onFailure(Throwable e, JSONArray errorResponse) {
+            callback.paymentFinishedFail();
+        }
     }
 
     public interface VendorInfoCallback {
@@ -126,5 +136,11 @@ public class HTTPHandlers {
     public interface  PaymentFinishedCallback {
         public void paymentFinishedSuccess(String code);
         public void paymentFinishedFail();
+    }
+
+    private AsyncHttpClient getClient() {
+        AsyncHttpClient client = new AsyncHttpClient();
+        client.setMaxRetriesAndTimeout(6, 1000);
+        return client;
     }
 }

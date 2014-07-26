@@ -3,20 +3,11 @@ package com.battlehack.smallsolution;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Toast;
 
-
-import com.braintreepayments.api.dropin.BraintreePaymentActivity;
-import com.loopj.android.http.AsyncHttpClient;
-import com.loopj.android.http.RequestParams;
-import com.loopj.android.http.TextHttpResponseHandler;
-
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;

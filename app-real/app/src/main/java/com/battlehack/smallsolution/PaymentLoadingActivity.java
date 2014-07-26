@@ -43,7 +43,7 @@ public class PaymentLoadingActivity extends Activity implements HTTPHandlers.Pay
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 434 && resultCode == BraintreePaymentActivity.RESULT_OK) {
             String paymentMethodNonce = data.getStringExtra(BraintreePaymentActivity.EXTRA_PAYMENT_METHOD_NONCE);
-            new HTTPHandlers().finialisedPayment(paymentMethodNonce, vendorId, this);
+            new HTTPHandlers().finalisedPayment(paymentMethodNonce, vendorId, this);
             setText(String.format(getString(R.string.payment_processing), vendorName));
         } else {
             Toast toast = Toast.makeText(getApplicationContext(), getString(R.string.payment_error), Toast.LENGTH_SHORT);
