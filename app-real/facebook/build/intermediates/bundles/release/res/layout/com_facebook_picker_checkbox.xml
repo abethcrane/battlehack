@@ -23,4 +23,4 @@
     android:focusable="false"
     android:clickable="false"
     android:button="@drawable/com_facebook_button_check" />
-<!-- From: file:/root/battlehack/app-real/facebook/res/layout/com_facebook_picker_checkbox.xml -->
+<!-- From: file:/Users/beth/Dropbox/Projects/battlehack/app-real/facebook/res/layout/com_facebook_picker_checkbox.xml -->
