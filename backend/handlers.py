@@ -2,6 +2,7 @@ import braintree
 from flask import render_template, request
 from flask.json import jsonify
 
+import config
 from server import app, db
 import models
 
@@ -19,7 +20,7 @@ def get_token(customer_id):
 @app.route('/client/finish', methods=['POST'])
 def complete_payment():
   result = braintree.Transaction.sale({
-      "amount" : request.form["amount"],
+      "amount" : config.purchase_price,
       "payment_method_nonce" : request.form["payment_method_nonce"]
   })
 

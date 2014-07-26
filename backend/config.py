@@ -1,5 +1,7 @@
 debug = True
 
+purchase_price = '7'
+
 database = 'sqlite:////tmp/smallsolution.db'
 
 merchant_id = "rs42c9pxpptkcz6j"
