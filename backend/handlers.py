@@ -35,5 +35,5 @@ def complete_payment():
 def find_vendors():
   ids = request.args.getlist('ids')
   vendors = models.Vendor.filter_by_ids(ids)
-  vendors = [{'id': v.id, 'vendor': v.vendor} for v in vendors]
+  vendors = [{'id': v.bluetooth, 'vendor': v.vendor} for v in vendors]
   return json.dumps(vendors)

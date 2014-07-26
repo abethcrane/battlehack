@@ -11,6 +11,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = config.database
 db = SQLAlchemy(app)
 
 # Now we can import the rest
+from admin import *
 from handlers import *
 from models import *
 
