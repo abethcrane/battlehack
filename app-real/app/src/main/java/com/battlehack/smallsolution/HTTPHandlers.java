@@ -1,5 +1,7 @@
 package com.battlehack.smallsolution;
 
+import android.util.Log;
+
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.RequestParams;
@@ -40,17 +42,14 @@ public class HTTPHandlers {
 
         @Override
         public void onSuccess(JSONObject response) {
-            String vendorID = "";
-            String vendorName = "";
+            Log.d("Resp", response.toString());
             try {
                 JSONArray arr = response.getJSONArray("vendors");
                 JSONObject vendOb = arr.getJSONObject(0);
-                vendorID = vendOb.getString("id");
-                vendorName = vendOb.getString("vendor");
+                callback.infoFetchedSuccess(major, minor, Vendor.fromJSON(vendOb));
             } catch (Exception e) {
                 callback.infoFetchedFail(major, minor);
             }
-            callback.infoFetchedSuccess(major, minor, vendorID, vendorName);
         }
 
         @Override
@@ -124,7 +123,7 @@ public class HTTPHandlers {
     }
 
     public interface VendorInfoCallback {
-        public void infoFetchedSuccess(String major, String minor, String Id, String name);
+        public void infoFetchedSuccess(String major, String minor, Vendor v);
         public void infoFetchedFail(String major, String minor);
     }
 
@@ -140,7 +139,7 @@ public class HTTPHandlers {
 
     private AsyncHttpClient getClient() {
         AsyncHttpClient client = new AsyncHttpClient();
-        client.setMaxRetriesAndTimeout(6, 1000);
+        client.setMaxRetriesAndTimeout(5, 2000);
         return client;
     }
 }

@@ -26,8 +26,7 @@ import java.util.Set;
 
 public class HomeActivity extends ListActivity {
     private Set<String> beaconsFound = new HashSet<String>();
-    private Map<Integer, String> idMap = new HashMap<Integer, String>();
-    private Map<Integer, String> nameMap = new HashMap<Integer, String>();
+    private Map<Integer, Vendor> vendorMap = new HashMap<Integer, Vendor>();
     private ArrayAdapter<String> adapter;
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -48,8 +47,7 @@ public class HomeActivity extends ListActivity {
 
     public void startScanning() {
         beaconsFound.clear();
-        idMap.clear();
-        nameMap.clear();
+        vendorMap.clear();
         adapter.clear();
         adapter.notifyDataSetChanged();
         byte[] toComp = {(byte)0xd5,(byte)0x70,(byte)0x92,(byte)0xac,   (byte)0xdf,(byte)0xaa,(byte)0x44,(byte)0x6c,    (byte)0x8e,(byte)0xf3,(byte)0xc8,(byte)0x1a,    (byte)0xa2,(byte)0x28,(byte)0x15,(byte)0xb5};
@@ -68,14 +66,12 @@ public class HomeActivity extends ListActivity {
                 beaconsFound.add(text);
                 new HTTPHandlers().fetchVendorInfo(major, minor, new HTTPHandlers.VendorInfoCallback() {
                     @Override
-                    public void infoFetchedSuccess(String major, String minor, String vendor_id, String vendor_name) {
+                    public void infoFetchedSuccess(String major, String minor, Vendor v) {
                         Integer upTo = adapter.getCount();
-                        idMap.put(upTo, vendor_id);
-                        nameMap.put(upTo, vendor_name);
-                        adapter.add(vendor_name);
+                        vendorMap.put(upTo, v);
+                        adapter.add(v.name + " selling " + v.item + " for $" + v.price);
                         adapter.notifyDataSetChanged();
-                        String item_name = "The Big Issue";
-                        notifyInRange(item_name, vendor_name, vendor_id);
+                        notifyInRange(v.item, v.name, v.id);
                     }
 
                     public void infoFetchedFail(String major, String minor) {
@@ -89,8 +85,8 @@ public class HomeActivity extends ListActivity {
     protected void onListItemClick(ListView l, View v, int position, long id) {
         Integer pos = position;
         Intent paymentScreen = new Intent(getApplicationContext(), PaymentLoadingActivity.class);
-        paymentScreen.putExtra("vendor_id", idMap.get(pos));
-        paymentScreen.putExtra("vendor_name", nameMap.get(pos));
+        paymentScreen.putExtra("vendor_id", vendorMap.get(pos).id);
+        paymentScreen.putExtra("vendor_name", vendorMap.get(pos).name);
         startActivity(paymentScreen);
     }
 
