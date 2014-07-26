@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.util.Log;
 
+import com.braintreepayments.api.dropin.BraintreePaymentActivity;
 import com.loopj.android.http.AsyncHttpClient;
 import com.loopj.android.http.RequestParams;
 import com.loopj.android.http.TextHttpResponseHandler;
@@ -13,32 +14,20 @@ import org.json.JSONObject;
 
 
 public class HTTPHandlers {
-    private Activity act;
-    public HTTPClientFinishedHandler getHTTPClientFinishedHandler(Activity act) {
-        this.act = act;
-        return new HTTPClientFinishedHandler();
-    }
 
     public void fetchVendorInfo(String major, String minor, VendorInfoCallback callback) {
         new HTTPVendorFind(major, minor, callback).begin();
     }
 
-    public class HTTPClientFinishedHandler extends TextHttpResponseHandler {
-        @Override
-        public void onSuccess(String servResp) {
-            Log.v("LOL2", servResp);
-            String transID = "";
-            try {
-                JSONObject token = new JSONObject(servResp);
-                transID = token.getString("transaction_id");
-            } catch (Exception e) {
-            }
-            AsyncHttpClient client = new AsyncHttpClient();
-            new HTTPVendorFind("1337", "1337", new HTTPVendorRedeemFinishedHandler(transID)).begin();
-        }
+    public void fetchPaymentToken(PaymentTokenCallback callback) {
+        new HTTPPaymentTokenGet(callback).begin();
     }
 
-    public class HTTPVendorFind extends TextHttpResponseHandler {
+    public void finialisedPayment(String nonce, String vendorId, PaymentFinishedCallback callback) {
+        new HTTPInstantPayment(nonce, vendorId, callback).begin();
+    }
+
+    private class HTTPVendorFind extends TextHttpResponseHandler {
 
         private String major, minor;
         private VendorInfoCallback callback;
@@ -51,6 +40,7 @@ public class HTTPHandlers {
 
         public void begin() {
             AsyncHttpClient client = new AsyncHttpClient();
+            Log.d("AA", "Started search for " + major + " " + minor);
             client.get(String.format("http://bh.epochfail.com:5000/vendors/find?ids=%s:%s", major, minor), this);
         }
 
@@ -58,6 +48,7 @@ public class HTTPHandlers {
         public void onSuccess(String servResp) {
             String vendorID = "";
             String vendorName = "";
+            Log.d("Gotback", servResp);
             try {
                 JSONObject token = new JSONObject(servResp);
                 JSONArray arr = token.getJSONArray("vendors");
@@ -70,41 +61,71 @@ public class HTTPHandlers {
         }
     }
 
-    public class HTTPVendorRedeemFinishedHandler extends TextHttpResponseHandler implements VendorInfoCallback {
+    private class HTTPPaymentTokenGet extends TextHttpResponseHandler {
+        private PaymentTokenCallback callback;
 
-        private String transID;
-        private String name;
-        public HTTPVendorRedeemFinishedHandler(String transID) {
-            this.transID = transID;
+        public HTTPPaymentTokenGet(PaymentTokenCallback callback) {
+            this.callback = callback;
         }
 
-        public void infoFetched(String major, String minor, String Id, String name) {
+        public void begin() {
+            AsyncHttpClient client = new AsyncHttpClient();
+            client.get("http://bh.epochfail.com:5000/client/get_token/1337:1337", this);
+        }
+
+        @Override
+        public void onSuccess(String clientToken) {
+            String actToken = "";
+            try {
+                JSONObject token = new JSONObject(clientToken);
+                actToken = token.getString("token");
+            } catch (Exception e) {
+            }
+            callback.tokenFetched(actToken);
+        }
+    }
+
+    private class HTTPInstantPayment extends TextHttpResponseHandler {
+        private String nonce, vendorId;
+        private PaymentFinishedCallback callback;
+
+        public HTTPInstantPayment(String nonce, String vendorId, PaymentFinishedCallback callback) {
+            this.nonce = nonce;
+            this.vendorId = vendorId;
+            this.callback = callback;
+        }
+
+        public void begin() {
             AsyncHttpClient client = new AsyncHttpClient();
             RequestParams rp = new RequestParams();
-            rp.add("transaction_id", transID);
-            rp.add("vendor_id", Id);
-            this.name = name;
-            client.post("http://bh.epochfail.com:5000/vendors/redeem", rp, this);
+            rp.add("payment_method_nonce", nonce);
+            rp.add("vendor_id", vendorId);
+            client.post("http://bh.epochfail.com:5000/client/instant", rp, this);
         }
 
         @Override
         public void onSuccess(String servResp) {
-            Log.v("LOL4", servResp);
+            Log.e("LOL4", servResp);
             String keyW = "";
             try {
                 JSONObject token = new JSONObject(servResp);
                 keyW = token.getString("keyword");
             } catch (Exception e) {
             }
-
-            Intent successScreen = new Intent(act.getApplicationContext(), Purchased.class);
-            successScreen.putExtra("name", name);
-            successScreen.putExtra("code", keyW);
-            act.startActivity(successScreen);
+            callback.paymentFinished(keyW);
         }
+
     }
 
     public interface VendorInfoCallback {
         public void infoFetched(String major, String minor, String Id, String name);
+    }
+
+    public interface PaymentTokenCallback {
+        public void tokenFetched(String token);
+    }
+
+    public interface  PaymentFinishedCallback {
+        public void paymentFinished(String code);
     }
 }

@@ -64,6 +64,7 @@ public class HomeActivity extends ListActivity {
         public void beaconFound(String major, String minor, byte[] beaconUuid) {
             String text = "Major: "+major + " minor: " + minor;
             if (!beaconsFound.contains(text)) {
+                Log.d("Searching", text);
                 beaconsFound.add(text);
                 new HTTPHandlers().fetchVendorInfo(major, minor, new HTTPHandlers.VendorInfoCallback() {
                     @Override

@@ -33,12 +33,12 @@ public class BeaconFinder {
 		this.beaconUuid = beaconUuid;
 	}
 	public boolean startSearching () {
-		Log.i("blelib", "disovering tokens");
+		Log.v("blelib", "disovering tokens");
 		if (bluetoothAdapter == null || !bluetoothAdapter.isEnabled()) {
-			Log.i("blelib", "no bluetooth adapter");
+			Log.v("blelib", "no bluetooth adapter");
 			return false;
 		}
-		Log.i("blelib", "bluetooth adapter enabled");
+		Log.v("blelib", "bluetooth adapter enabled");
 		handler.postDelayed(bleStopScanCallback, SCAN_PERIOD);
 		bluetoothAdapter.startLeScan(mLeScanCallback);
 		return true;
@@ -58,15 +58,15 @@ public class BeaconFinder {
 		byte[] minor = Arrays.copyOfRange(scanRecord,27,29);
 		String maj = String.format("%02x",major[0]) + String.format("%02x",major[1]);
 		String min = String.format("%02x",minor[0]) + String.format("%02x",minor[1]);
-		Log.i("main","major: "+ maj);
-		Log.i("main","minor: "+ min);
+		Log.v("main","major: "+ maj);
+		Log.v("main","minor: "+ min);
 		if (Arrays.equals(beaconUuid,uuid)) {
-			Log.i("blelib", "found beacon!");
+			Log.v("blelib", "found beacon!");
 			String s = "";
 			for (byte b : uuid) {
 				s += "0x" + String.format("%02x",b) + ",";
 			}
-			Log.i("blelib",s);
+			Log.v("blelib",s);
 			beaconCallback.beaconFound(maj,min,uuid);
 		}
 
@@ -75,7 +75,7 @@ public class BeaconFinder {
 	private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
 	    @Override
 	    public void onLeScan(final BluetoothDevice device, final int rssi,final byte[] scanRecord) {
-	    	Log.i("blelib", "bluetooth device found");
+	    	Log.v("blelib", "bluetooth device found");
 	        context.runOnUiThread(new Runnable() {
         	   	@Override
 	           	public void run() {
