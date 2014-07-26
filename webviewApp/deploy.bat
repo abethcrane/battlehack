@@ -1,0 +1,1 @@
+adb -d install -r bin\webviewApp-debug.apk
