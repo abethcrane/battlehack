@@ -18,19 +18,22 @@ import com.loopj.android.http.TextHttpResponseHandler;
 
 import org.json.JSONObject;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 public class HomeActivity extends ListActivity {
     private Set<String> beaconsFound = new HashSet<String>();
+    private Map<Integer, String> idMap = new HashMap<Integer, String>();
+    private Map<Integer, String> nameMap = new HashMap<Integer, String>();
     private ArrayAdapter<String> adapter;
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        String[] values = new String[]{"Android", "iPhone", "WindowsMobile", "Blackberry", "WebOS", "Ubuntu", "Windows7", "Max OS X", "Linux", "OS/2"};
-        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, values);
+        adapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, new ArrayList<String>());
         setListAdapter(adapter);
     }
 
@@ -44,7 +47,11 @@ public class HomeActivity extends ListActivity {
     }
 
     public void startScanning() {
-        beaconsFound = new HashSet<String>();
+        beaconsFound.clear();
+        idMap.clear();
+        nameMap.clear();
+        adapter.clear();
+        adapter.notifyDataSetChanged();
         byte[] toComp = {(byte)0xd5,(byte)0x70,(byte)0x92,(byte)0xac,   (byte)0xdf,(byte)0xaa,(byte)0x44,(byte)0x6c,    (byte)0x8e,(byte)0xf3,(byte)0xc8,(byte)0x1a,    (byte)0xa2,(byte)0x28,(byte)0x15,(byte)0xb5};
         BeaconFinder bf = new BeaconFinder(bc, toComp, this);
         bf.startSearching();
@@ -58,51 +65,29 @@ public class HomeActivity extends ListActivity {
             String text = "Major: "+major + " minor: " + minor;
             if (!beaconsFound.contains(text)) {
                 beaconsFound.add(text);
-                Toast toast = Toast.makeText(getApplicationContext(), text, Toast.LENGTH_SHORT);
-                toast.show();
+                new HTTPHandlers().fetchVendorInfo(major, minor, new HTTPHandlers.VendorInfoCallback() {
+                    @Override
+                    public void infoFetched(String major, String minor, String Id, String name) {
+                        Integer upTo = adapter.getCount();
+                        idMap.put(upTo, Id);
+                        nameMap.put(upTo, name);
+                        adapter.add(name);
+                        adapter.notifyDataSetChanged();
+                    }
+                });
             }
         }
     };
 
     protected void onListItemClick(ListView l, View v, int position, long id) {
-        String item = (String) getListAdapter().getItem(position);
-        Toast.makeText(this, item + " selected", Toast.LENGTH_LONG).show();
-        AsyncHttpClient client = new AsyncHttpClient();
-        client.get("http://bh.epochfail.com:5000/client/get_token/" + item, new TextHttpResponseHandler() {
-            @Override
-            public void onSuccess(String clientToken) {
-                Intent intent = new Intent(getApplicationContext(), BraintreePaymentActivity.class);
-                Log.v("HEEE", clientToken);
-
-                String actToken = "";
-                try {
-                    JSONObject token = new JSONObject(clientToken);
-                    actToken = token.getString("token");
-                } catch (Exception e) {
-
-                }
-                Log.v("Mytoken", actToken);
-                intent.putExtra(BraintreePaymentActivity.EXTRA_CLIENT_TOKEN, actToken);
-                // REQUEST_CODE is arbitrary and is only used within this activity.
-                Log.v("HA?", "HHHH");
-                startActivityForResult(intent, 434);
-            }
-        });
+        Integer pos = position;
+        Intent paymentScreen = new Intent(getApplicationContext(), PaymentLoadingActivity.class);
+        paymentScreen.putExtra("vendor_id", idMap.get(pos));
+        paymentScreen.putExtra("vendor_name", nameMap.get(pos));
+        startActivity(paymentScreen);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == 434 && resultCode == BraintreePaymentActivity.RESULT_OK) {
-            String paymentMethodNonce = data.getStringExtra(BraintreePaymentActivity.EXTRA_PAYMENT_METHOD_NONCE);
-            Log.v("LOL", paymentMethodNonce);
-            AsyncHttpClient client = new AsyncHttpClient();
-            RequestParams rp = new RequestParams();
-            rp.add("payment_method_nonce", paymentMethodNonce);
-            client.post("http://bh.epochfail.com:5000/client/finish", rp, new HTTPHandlers().getHTTPClientFinishedHandler(this));
-        } else {
-            Log.v("Fail", "Failed with " + requestCode + " - " + resultCode);
-        }
-    }
+
 
 
 

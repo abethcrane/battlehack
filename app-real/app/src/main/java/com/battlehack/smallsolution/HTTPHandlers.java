@@ -19,6 +19,10 @@ public class HTTPHandlers {
         return new HTTPClientFinishedHandler();
     }
 
+    public void fetchVendorInfo(String major, String minor, VendorInfoCallback callback) {
+        new HTTPVendorFind(major, minor, callback).begin();
+    }
+
     public class HTTPClientFinishedHandler extends TextHttpResponseHandler {
         @Override
         public void onSuccess(String servResp) {
@@ -30,21 +34,28 @@ public class HTTPHandlers {
             } catch (Exception e) {
             }
             AsyncHttpClient client = new AsyncHttpClient();
-            client.get("http://bh.epochfail.com:5000/vendors/find?ids=1337:1337", new HTTPVendorFindFinishedHandler(transID));
+            new HTTPVendorFind("1337", "1337", new HTTPVendorRedeemFinishedHandler(transID)).begin();
         }
     }
 
-    public class HTTPVendorFindFinishedHandler extends TextHttpResponseHandler {
+    public class HTTPVendorFind extends TextHttpResponseHandler {
 
-        private String transID;
+        private String major, minor;
+        private VendorInfoCallback callback;
 
-        public HTTPVendorFindFinishedHandler(String transID) {
-            this.transID = transID;
+        public HTTPVendorFind(String major, String minor, VendorInfoCallback callback) {
+            this.major = major;
+            this.minor = minor;
+            this.callback = callback;
+        }
+
+        public void begin() {
+            AsyncHttpClient client = new AsyncHttpClient();
+            client.get(String.format("http://bh.epochfail.com:5000/vendors/find?ids=%s:%s", major, minor), this);
         }
 
         @Override
         public void onSuccess(String servResp) {
-            Log.v("LOL3", servResp);
             String vendorID = "";
             String vendorName = "";
             try {
@@ -55,20 +66,27 @@ public class HTTPHandlers {
                 vendorName = vendOb.getString("vendor");
             } catch (Exception e) {
             }
-            AsyncHttpClient client = new AsyncHttpClient();
-            RequestParams rp = new RequestParams();
-            rp.add("transaction_id", transID);
-            rp.add("vendor_id", vendorID);
-            client.post("http://bh.epochfail.com:5000/vendors/redeem", rp, new HTTPVendorRedeemFinishedHandler(vendorName));
+            callback.infoFetched(major, minor, vendorID, vendorName);
         }
     }
 
-    public class HTTPVendorRedeemFinishedHandler extends TextHttpResponseHandler {
+    public class HTTPVendorRedeemFinishedHandler extends TextHttpResponseHandler implements VendorInfoCallback {
 
-        private String vendorName;
-        public HTTPVendorRedeemFinishedHandler(String vendorName) {
-            this.vendorName = vendorName;
+        private String transID;
+        private String name;
+        public HTTPVendorRedeemFinishedHandler(String transID) {
+            this.transID = transID;
         }
+
+        public void infoFetched(String major, String minor, String Id, String name) {
+            AsyncHttpClient client = new AsyncHttpClient();
+            RequestParams rp = new RequestParams();
+            rp.add("transaction_id", transID);
+            rp.add("vendor_id", Id);
+            this.name = name;
+            client.post("http://bh.epochfail.com:5000/vendors/redeem", rp, this);
+        }
+
         @Override
         public void onSuccess(String servResp) {
             Log.v("LOL4", servResp);
@@ -80,9 +98,13 @@ public class HTTPHandlers {
             }
 
             Intent successScreen = new Intent(act.getApplicationContext(), Purchased.class);
-            successScreen.putExtra("name", vendorName);
+            successScreen.putExtra("name", name);
             successScreen.putExtra("code", keyW);
             act.startActivity(successScreen);
         }
+    }
+
+    public interface VendorInfoCallback {
+        public void infoFetched(String major, String minor, String Id, String name);
     }
 }
