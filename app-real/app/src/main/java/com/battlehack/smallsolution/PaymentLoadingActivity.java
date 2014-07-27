@@ -2,7 +2,9 @@ package com.battlehack.smallsolution;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,7 +19,7 @@ import android.widget.Toast;
 import com.braintreepayments.api.dropin.BraintreePaymentActivity;
 import com.braintreepayments.api.dropin.Customization;
 
-public class PaymentLoadingActivity extends Activity implements HTTPHandlers.PaymentTokenCallback, HTTPHandlers.PaymentFinishedCallback {
+public class PaymentLoadingActivity extends Activity implements HTTPHandlers.PaymentTokenCallback, HTTPHandlers.CustomerIDCallback, HTTPHandlers.PaymentFinishedCallback {
 
     private Vendor v;
     private boolean active;
@@ -51,15 +53,21 @@ public class PaymentLoadingActivity extends Activity implements HTTPHandlers.Pay
     @Override
     public void tokenFetchedSuccess(String token) {
         if (!active) return;
-        Intent intent = new Intent(getApplicationContext(), BraintreePaymentActivity.class);
-        Customization customization = new Customization.CustomizationBuilder()
-                .primaryDescription(v.item)
-                .amount("$" + v.price)
-                .submitButtonText("Buy")
-                .build();
-        intent.putExtra(BraintreePaymentActivity.EXTRA_CUSTOMIZATION, customization);
-        intent.putExtra(BraintreePaymentActivity.EXTRA_CLIENT_TOKEN, token);
-        startActivityForResult(intent, 434);
+        // if we have a token, call straight to evgeny
+        if (getCustomerID() != null) {
+            new HTTPHandlers().finalisedPayment(getCustomerID(), v.id, this);
+        } else {
+            // else call braintree and then use the nonce to create a customer id
+            Intent intent = new Intent(getApplicationContext(), BraintreePaymentActivity.class);
+            Customization customization = new Customization.CustomizationBuilder()
+                    .primaryDescription(v.item)
+                    .amount("$" + v.price)
+                    .submitButtonText("Buy")
+                    .build();
+            intent.putExtra(BraintreePaymentActivity.EXTRA_CUSTOMIZATION, customization);
+            intent.putExtra(BraintreePaymentActivity.EXTRA_CLIENT_TOKEN, token);
+            startActivityForResult(intent, 434);
+        }
     }
 
     @Override
@@ -75,7 +83,11 @@ public class PaymentLoadingActivity extends Activity implements HTTPHandlers.Pay
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == 434 && resultCode == BraintreePaymentActivity.RESULT_OK) {
             String paymentMethodNonce = data.getStringExtra(BraintreePaymentActivity.EXTRA_PAYMENT_METHOD_NONCE);
-            new HTTPHandlers().finalisedPayment(paymentMethodNonce, v.id, this);
+
+            // Use the nonce to call /v3/client/create_customer
+            new HTTPHandlers().fetchCustomerID(paymentMethodNonce, this);
+            // Now pass the customer id through to finalised payment
+            new HTTPHandlers().finalisedPayment(getCustomerID(), v.id, this);
             setText(String.format(getString(R.string.payment_processing), v.name));
             active = true;
         } else if (resultCode == BraintreePaymentActivity.RESULT_CANCELED) {
@@ -86,6 +98,34 @@ public class PaymentLoadingActivity extends Activity implements HTTPHandlers.Pay
             Log.e("Payment", "Failed with " + requestCode + " - " + resultCode);
             finish();
         }
+    }
+
+
+    public String getCustomerID() {
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        return settings.getString("customer_id", null);
+    }
+
+    public void customerIDFetchedSuccess(String code) {
+        if (!active) return;
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        SharedPreferences.Editor editor = settings.edit();
+        editor.putString("customer_id", code);
+
+
+        Intent successScreen = new Intent(getApplicationContext(), FinishedFragmentActivity.class);
+        successScreen.putExtra("vendor", v);
+        successScreen.putExtra("code", code);
+        startActivity(successScreen);
+        finish();
+    }
+
+    @Override
+    public void customerIDFetchedFail() {
+        if (!active) return;
+        // TODO: Fix this. Keep retrying.
+        Log.e("Customer", "Could not set ID");
+        finish();
     }
 
     public void paymentFinishedSuccess(String code) {

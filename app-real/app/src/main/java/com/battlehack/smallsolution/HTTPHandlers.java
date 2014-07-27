@@ -25,6 +25,10 @@ public class HTTPHandlers {
         new HTTPInstantPayment(nonce, vendorId, callback).begin();
     }
 
+    public void fetchCustomerID(String nonce, CustomerIDCallback callback) {
+        new HTTPCustomerIDGet(nonce, callback).begin();
+    }
+
     private class HTTPVendorFind extends JsonHttpResponseHandler {
 
         private String major, minor;
@@ -58,6 +62,38 @@ public class HTTPHandlers {
 
     }
 
+    private class HTTPCustomerIDGet extends JsonHttpResponseHandler {
+        private CustomerIDCallback callback;
+        private String nonce;
+
+        public HTTPCustomerIDGet(String nonce, CustomerIDCallback callback) {
+            this.nonce = nonce;
+            this.callback = callback;
+        }
+
+        public void begin() {
+            RequestParams rp = new RequestParams();
+            rp.add("payment_method_nonce", nonce);
+            getClient().post("http://bh.epochfail.com:5000/v3/client/create_customer", rp, this);
+        }
+
+        @Override
+        public void onSuccess(JSONObject response) {
+            String customer_id = "";
+            try {
+                customer_id = response.getString("customer_id");
+            } catch (Exception e) {
+                callback.customerIDFetchedFail();
+            }
+            callback.customerIDFetchedSuccess(customer_id);
+        }
+
+        @Override
+        public void onFailure(Throwable e, JSONArray errorResponse) {
+            callback.customerIDFetchedFail();
+        }
+    }
+
     private class HTTPPaymentTokenGet extends JsonHttpResponseHandler {
         private PaymentTokenCallback callback;
 
@@ -81,7 +117,7 @@ public class HTTPHandlers {
         }
 
         @Override
-        public void onFailure(Throwable e, JSONArray errorRespotnse) {
+        public void onFailure(Throwable e, JSONArray errorResponse) {
             callback.tokenFetchedFail();
         }
 
@@ -129,6 +165,11 @@ public class HTTPHandlers {
     public interface PaymentTokenCallback {
         public void tokenFetchedSuccess(String token);
         public void tokenFetchedFail();
+    }
+
+    public interface CustomerIDCallback {
+        public void customerIDFetchedSuccess(String token);
+        public void customerIDFetchedFail();
     }
 
     public interface  PaymentFinishedCallback {
