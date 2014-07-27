@@ -8,7 +8,7 @@ class Vendor(db.Model):
   vendor = db.Column(db.Unicode(100))
   keyword = db.Column(db.Unicode(100))
   price = db.Column(db.Integer())
-  image = db.Column(db.Unicode(100))
+  image = db.Column(db.Unicode(1000))
   item_name = db.Column(db.Unicode(100))
 
   organisation = db.relationship('Organisation')

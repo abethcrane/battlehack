@@ -19,7 +19,6 @@ def __authorise_payment(**sale_params):
   else:
       result = {'status': 'error', 'message': result.message}
 
-  print request.form["payment_method_nonce"], result
   return result
 
 def authorise_payment(payment_method_nonce, amount):
@@ -122,7 +121,7 @@ def v3_client_create_customer():
   })
 
   if result.is_success:
-    result = {'status': 'ok', 'customer_id': result.customer_id}
+    result = {'status': 'ok', 'customer_id': result.customer.id}
   else:
     result = {'status': 'error', 'message': repr(result.errors)}
 
