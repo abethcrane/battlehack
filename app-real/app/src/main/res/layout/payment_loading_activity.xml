@@ -39,7 +39,9 @@
         android:layout_below="@+id/description"
         android:id="@+id/prodDis"
         android:minHeight="200dp"
-        android:maxHeight="200dp"  />
+        android:maxHeight="200dp"
+        android:maxWidth="200dp"
+        android:adjustViewBounds="true"/>
 
     <ImageView
         android:layout_gravity="center_horizontal"

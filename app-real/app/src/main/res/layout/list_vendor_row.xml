@@ -17,7 +17,11 @@
         android:layout_marginBottom="5dp"
         android:layout_centerVertical="true"
         android:layout_alignParentLeft="true"
-        android:layout_marginLeft="20dp" />
+        android:layout_marginLeft="20dp"
+        android:maxHeight="100dp"
+        android:maxWidth="100dp"
+        android:adjustViewBounds="true"
+        />
 
     <TextView android:id="@+id/txtTitle"
         android:layout_width="wrap_content"
