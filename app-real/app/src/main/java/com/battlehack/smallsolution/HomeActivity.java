@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 
@@ -31,6 +32,8 @@ public class HomeActivity extends ListActivity {
     private Set<String> beaconsFound = new HashSet<String>();
     private Map<Integer, Vendor> vendorMap = new HashMap<Integer, Vendor>();
     private VendorAdapter adapter;
+    private BeaconFinder bf = null;
+    private ProgressBar scanningBar;
     public int currentNotification;
 
     @Override
@@ -45,6 +48,7 @@ public class HomeActivity extends ListActivity {
 
         View header = (View)getLayoutInflater().inflate(R.layout.list_vendor_header, null);
         list.addHeaderView(header);
+        scanningBar = (ProgressBar) header.findViewById(R.id.progressBar);
         list.setAdapter(adapter);
     }
 
@@ -57,7 +61,7 @@ public class HomeActivity extends ListActivity {
 
         final Activity a = this;
         new Thread ( new Runnable () { public void run () {
-            new BackgroundNotifier(5).scheduleAtFixedRate(new BeaconRunnable(bc, a), 10, 60, TimeUnit.SECONDS);
+            new BackgroundNotifier(5).scheduleAtFixedRate(new BeaconRunnable(bc, stopCallback, a), 10, 60, TimeUnit.SECONDS);
             //pollBluetooth.doInBackground();
         }}).start();
     }
@@ -72,12 +76,26 @@ public class HomeActivity extends ListActivity {
         adapter.clear();
         adapter.notifyDataSetChanged();
         byte[] toComp = {(byte)0xd5,(byte)0x70,(byte)0x92,(byte)0xac,   (byte)0xdf,(byte)0xaa,(byte)0x44,(byte)0x6c,    (byte)0x8e,(byte)0xf3,(byte)0xc8,(byte)0x1a,    (byte)0xa2,(byte)0x28,(byte)0x15,(byte)0xb5};
-        BeaconFinder bf = new BeaconFinder(bc, toComp, this);
+        if (bf != null) {
+            bf.stopScan();
+        }
+        bf = new BeaconFinder(bc, stopCallback, toComp, this);
         bf.startSearching();
+        scanningBar.setVisibility(View.VISIBLE);
+        //setProgressBarIndeterminate(true);
+        //setProgressBarIndeterminateVisibility(true);
         Toast toast = Toast.makeText(getApplicationContext(), "Starting scan...", Toast.LENGTH_SHORT);
         toast.show();
     }
 
+    private BeaconFinder.ScanStopCallback stopCallback = new BeaconFinder.ScanStopCallback() {
+        @Override
+        public void onScanStop() {
+            Log.d("Stop", "Called");
+            scanningBar.setVisibility(View.GONE);
+           //setProgressBarIndeterminateVisibility(false);
+        }
+    };
 
     private BeaconCallback bc = new BeaconCallback() {
         public void beaconFound(String major, String minor, byte[] beaconUuid) {

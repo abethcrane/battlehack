@@ -18,8 +18,10 @@ public class BeaconFinder {
 	private final BluetoothManager bluetoothManager;
 	private Activity context;
 	private byte[] beaconUuid;
-	public BeaconFinder(BeaconCallback beaconCallback,byte[] beaconUuid, Activity context) {
+    private ScanStopCallback stopCallback;
+	public BeaconFinder(BeaconCallback beaconCallback,ScanStopCallback stopCallback, byte[] beaconUuid, Activity context) {
 		this.beaconUuid = beaconUuid;
+        this.stopCallback = stopCallback;
 		this.context = context;
 		bluetoothManager = (BluetoothManager) context.getSystemService(Context.BLUETOOTH_SERVICE);
 		bluetoothAdapter = bluetoothManager.getAdapter();
@@ -50,7 +52,11 @@ public class BeaconFinder {
         }
     };
     public void stopScan () {
-		bluetoothAdapter.stopLeScan(mLeScanCallback);
+        bluetoothAdapter.stopLeScan(mLeScanCallback);
+        if (stopCallback != null) {
+            stopCallback.onScanStop();
+            stopCallback = null;
+        }
 	}
 	private void addDevice (final BluetoothDevice device, int rssi, byte[] scanRecord) {
 		byte[] uuid = Arrays.copyOfRange(scanRecord,9,25);
@@ -84,4 +90,8 @@ public class BeaconFinder {
 	       	});
    		}
 	};
+
+    public interface ScanStopCallback {
+        public void onScanStop();
+    }
 }
