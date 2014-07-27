@@ -108,6 +108,7 @@ def client_instant():
 
   result = submit_for_settlement(result['transaction_id'], vendor)
   db.session.add(models.Order(vendor.organisation, vendor, vendor.item_name, vendor.price))
+  vendor.owed += vendor.price
   db.session.commit()
   return jsonify(result)
 
@@ -142,6 +143,7 @@ def v3_client_instant():
 
   result = submit_for_settlement(result['transaction_id'], vendor)
   db.session.add(models.Order(vendor.organisation, vendor, vendor.item_name, vendor.price))
+  vendor.owed += vendor.price
   db.session.commit()
   return jsonify(result)
 
