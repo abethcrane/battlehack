@@ -13,6 +13,9 @@ class BaseOrganisationFilteredModelView(sqla.ModelView):
     q = q.filter(self.model.organisation==login.current_user.organisation)
     return q
 
+  def is_accessible(self):
+    return login.current_user.is_authenticated()
+
 
 class VendorAdmin(BaseOrganisationFilteredModelView):
   column_labels = dict(bluetooth='Bluetooth ID', vendor='Name')
@@ -21,9 +24,6 @@ class VendorAdmin(BaseOrganisationFilteredModelView):
 
   def __init__(self, session):
     super(VendorAdmin, self).__init__(models.Vendor, session, name='Individual vendors')
-
-  def is_accessible(self):
-    return login.current_user.is_authenticated()
 
 
 class OrdersView(BaseOrganisationFilteredModelView):
@@ -39,6 +39,7 @@ class OrdersView(BaseOrganisationFilteredModelView):
 
 class AdminIndexView(admin.AdminIndexView):
   @expose('/')
+  @login.login_required
   def index(self):
     if not login.current_user.is_authenticated():
       return redirect('/login')

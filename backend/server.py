@@ -23,17 +23,18 @@ login_manager.user_loader(User.get_by_username)
 if __name__ == '__main__':
   db.create_all()
 
-  u = User()
-  u.username = 'evgeny'
+  o1 = Organisation(name='The Big Issue')
+  o2 = Organisation(name='Helping Hands')
+  u = User(username='evgeny', organisation=o1)
   u.set_password('potato')
-  o = Organisation()
-  o.name = 'The Big Issue'
-  db.session.add(u)
-  db.session.add(o)
-  try:
-    db.session.commit()
-  except:  # IntegrityError
-    pass
+
+  for obj in [u, o2]:
+    db.session.add(obj)
+    try:
+      db.session.commit()
+    except Exception as e:  # IntegrityError
+      print e
+      db.session.rollback()
 
   braintree.Configuration.configure(braintree.Environment.Sandbox,
       merchant_id=config.merchant_id,
