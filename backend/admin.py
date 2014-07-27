@@ -52,7 +52,6 @@ class AdminIndexView(admin.AdminIndexView):
 @app.route('/admin/bulk', methods=['POST'])
 @login.login_required
 def bulk_update():
-  bluetooth_id = request.form.get('bluetooth_id', None)
   name = request.form.get('name', None)
   keyword = request.form.get('keyword', None)
   price = request.form.get('price', None)
@@ -62,7 +61,7 @@ def bulk_update():
   except:
     price = None
 
-  models.Vendor.update_bulk(login.current_user, bluetooth_id, name, keyword, price)
+  models.Vendor.update_bulk(login.current_user, name, keyword, price)
   return redirect('/admin')
 
 admin = admin.Admin(app, index_view=AdminIndexView(name='Bulk update'))

@@ -29,8 +29,8 @@ class Vendor(db.Model):
     return cls.query.filter(cls.id==vid).first()
 
   @classmethod
-  def update_bulk(cls, user, bluetooth, name, keyword, price):
-    values = dict(bluetooth=bluetooth, vendor=name, keyword=keyword, price=price)
+  def update_bulk(cls, user, name, keyword, price):
+    values = dict(vendor=name, keyword=keyword, price=price)
     values = {k:v for k,v in values.iteritems() if v}
     cls.query.filter(cls.organisation==user.organisation).update(values)
     db.session.commit()
