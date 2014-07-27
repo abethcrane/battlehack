@@ -104,6 +104,12 @@ public class PaymentLoadingActivity extends Activity implements HTTPHandlers.Pay
 
     public String getCustomerID() {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        if (!settings.getBoolean("paypal_save", false)) {
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putString("customer_id", null);
+            editor.apply();
+            return null;
+        }
         Log.d("getcustomerID",settings.toString());
         Log.d("customer_id", settings.getString("customer_id", ""));
         return settings.getString("customer_id", null);

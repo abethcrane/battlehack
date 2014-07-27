@@ -82,8 +82,6 @@ public class HomeActivity extends ListActivity {
         bf = new BeaconFinder(bc, stopCallback, toComp, this);
         bf.startSearching();
         scanningBar.setVisibility(View.VISIBLE);
-        //setProgressBarIndeterminate(true);
-        //setProgressBarIndeterminateVisibility(true);
         Toast toast = Toast.makeText(getApplicationContext(), "Starting scan...", Toast.LENGTH_SHORT);
         toast.show();
     }
@@ -93,7 +91,6 @@ public class HomeActivity extends ListActivity {
         public void onScanStop() {
             Log.d("Stop", "Called");
             scanningBar.setVisibility(View.GONE);
-           //setProgressBarIndeterminateVisibility(false);
         }
     };
 
