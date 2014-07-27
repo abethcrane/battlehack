@@ -23,19 +23,20 @@ login_manager.unauthorized = lambda: redirect('/login')
 
 if __name__ == '__main__':
   db.create_all()
+  Organisation.query.delete()
+  User.query.delete()
+  db.session.commit()
 
   o1 = Organisation(name='The Big Issue')
   o2 = Organisation(name='Helping Hands')
-  u = User(username='evgeny', organisation=o1)
-  u.set_password('potato')
+  u1 = User(username='evgeny', organisation=o1)
+  u1.set_password('potato')
+  u2 = User(username='beth', organisation=o2)
+  u2.set_password('helloworld')
 
-  for obj in [u, o2]:
+  for obj in [o1, o2, u1, u2]:
     db.session.add(obj)
-    try:
-      db.session.commit()
-    except Exception as e:  # IntegrityError
-      print e
-      db.session.rollback()
+  db.session.commit()
 
   braintree.Configuration.configure(braintree.Environment.Sandbox,
       merchant_id=config.merchant_id,
