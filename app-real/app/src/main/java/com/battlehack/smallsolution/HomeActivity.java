@@ -1,6 +1,7 @@
 package com.battlehack.smallsolution;
 
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.ListActivity;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -34,6 +35,10 @@ public class HomeActivity extends ListActivity {
     private VendorAdapter adapter;
     private BeaconFinder bf = null;
     private ProgressBar scanningBar;
+
+    private PendingIntent pendingIntent;
+    private AlarmManager manager;
+
     public int currentNotification;
 
     @Override
@@ -50,6 +55,10 @@ public class HomeActivity extends ListActivity {
         list.addHeaderView(header);
         scanningBar = (ProgressBar) header.findViewById(R.id.progressBar);
         list.setAdapter(adapter);
+
+        //Intent scanInt = new Intent(this, RunScanReceiver.class);
+        //pendingIntent = PendingIntent.getBroadcast(this, 0, scanInt, 0);
+
     }
 
     public void onStart() {
@@ -59,11 +68,16 @@ public class HomeActivity extends ListActivity {
         // Schedule the app to look for bluetooth tokens every minute
         //final BackgroundAsync pollBluetooth = new BackgroundAsync(new BackgroundNotifier(5), new BeaconRunnable(bc, this), 10, 60, TimeUnit.SECONDS);
 
-        final Activity a = this;
-        new Thread ( new Runnable () { public void run () {
-            new BackgroundNotifier(5).scheduleAtFixedRate(new BeaconRunnable(bc, stopCallback, a), 10, 60, TimeUnit.SECONDS);
+        //final Activity a = this;
+        //new Thread ( new Runnable () { public void run () {
+          //  new BackgroundNotifier(5).scheduleAtFixedRate(new BeaconRunnable(bc, stopCallback, a), 10, 60, TimeUnit.SECONDS);
             //pollBluetooth.doInBackground();
-        }}).start();
+        //}}).start();
+
+        //manager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+        //int interval = 10000;
+
+        //manager.setRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
     }
 
     public void rescanClick() {
@@ -89,7 +103,6 @@ public class HomeActivity extends ListActivity {
     private BeaconFinder.ScanStopCallback stopCallback = new BeaconFinder.ScanStopCallback() {
         @Override
         public void onScanStop() {
-            Log.d("Stop", "Called");
             scanningBar.setVisibility(View.GONE);
         }
     };

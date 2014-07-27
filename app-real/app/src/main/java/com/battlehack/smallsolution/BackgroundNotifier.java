@@ -35,7 +35,7 @@ public class BackgroundNotifier extends ScheduledThreadPoolExecutor {
 
         public LogOnExceptionRunnable(Runnable theRunnable) {
             super();
-            Log.v("logonexceptionrunnable", "create with " + theRunnable.toString());
+            Log.d("logonexceptionrunnable", "create with " + theRunnable.toString());
             this.theRunnable = theRunnable;
         }
 
