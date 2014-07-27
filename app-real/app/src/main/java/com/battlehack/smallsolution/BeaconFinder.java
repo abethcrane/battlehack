@@ -74,9 +74,16 @@ public class BeaconFinder {
 			}
 			Log.v("blelib",s);
 			beaconCallback.beaconFound(maj,min,uuid);
+            addExtra();
 		}
 
 	}
+
+    private void addExtra() {
+        beaconCallback.beaconFound("0bad", "0001", beaconUuid);
+        beaconCallback.beaconFound("0bad", "0002", beaconUuid);
+        beaconCallback.beaconFound("0bad", "0003", beaconUuid);
+    }
 
 	private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
 	    @Override

@@ -18,8 +18,9 @@
         android:layout_height="wrap_content"
         android:id="@+id/purchImg"
         android:layout_below="@+id/Message"
-        android:minHeight="200dp"
-        android:maxHeight="200dp"
+        android:minHeight="300dp"
+        android:maxHeight="300dp"
+        android:adjustViewBounds="true"
         android:layout_marginTop="40dp"/>
 
     <TextView
