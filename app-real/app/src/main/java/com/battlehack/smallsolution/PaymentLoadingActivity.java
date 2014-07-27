@@ -103,6 +103,8 @@ public class PaymentLoadingActivity extends Activity implements HTTPHandlers.Pay
 
     public String getCustomerID() {
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        Log.d("getcustomerID",settings.toString());
+        Log.d("customer_id", settings.getString("customer_id", ""));
         return settings.getString("customer_id", null);
     }
 
@@ -111,8 +113,9 @@ public class PaymentLoadingActivity extends Activity implements HTTPHandlers.Pay
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         SharedPreferences.Editor editor = settings.edit();
         editor.putString("customer_id", code);
-
-
+        editor.apply();
+        Log.d("Fetched customer ID", code);
+        Log.d("Fetched customer ID", settings.getString("customer_id", ""));
         Intent successScreen = new Intent(getApplicationContext(), FinishedFragmentActivity.class);
         successScreen.putExtra("vendor", v);
         successScreen.putExtra("code", code);
