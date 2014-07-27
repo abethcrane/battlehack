@@ -36,6 +36,10 @@ class OrdersView(BaseOrganisationFilteredModelView):
   def __init__(self, session):
     super(OrdersView, self).__init__(models.Order, session, name='Order history')
 
+class LogoutAdmin(admin.BaseView):
+  @expose('/')
+  def index(self):
+    return redirect('/logout')
 
 class AdminIndexView(admin.AdminIndexView):
   @expose('/')
@@ -68,3 +72,4 @@ def bulk_update():
 admin = admin.Admin(app, index_view=AdminIndexView(name='Bulk update'))
 admin.add_view(VendorAdmin(db.session))
 admin.add_view(OrdersView(db.session))
+admin.add_view(LogoutAdmin(name='Logout'))
