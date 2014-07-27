@@ -22,6 +22,8 @@ class VendorAdmin(BaseOrganisationFilteredModelView):
   column_searchable_list = (models.Vendor.bluetooth, models.Vendor.vendor)
   form_excluded_columns = ('total_sold',)
 
+  column_list = ('organisation', 'bluetooth', 'vendor', 'price', 'image', 'item_name')
+
   def __init__(self, session):
     super(VendorAdmin, self).__init__(models.Vendor, session, name='Individual vendors')
 
