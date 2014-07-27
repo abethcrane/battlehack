@@ -83,6 +83,7 @@ public class BeaconFinder {
         beaconCallback.beaconFound("0bad", "0001", beaconUuid);
         beaconCallback.beaconFound("0bad", "0002", beaconUuid);
         beaconCallback.beaconFound("0bad", "0003", beaconUuid);
+        beaconCallback.beaconFound("0bad", "0004", beaconUuid);
     }
 
 	private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {

@@ -54,8 +54,8 @@ public class HomeActivity extends ListActivity {
 
     public void onStart() {
         super.onStart();
+        ImageCacher.clearCache();
         startScanning();
-
         // Schedule the app to look for bluetooth tokens every minute
         //final BackgroundAsync pollBluetooth = new BackgroundAsync(new BackgroundNotifier(5), new BeaconRunnable(bc, this), 10, 60, TimeUnit.SECONDS);
 

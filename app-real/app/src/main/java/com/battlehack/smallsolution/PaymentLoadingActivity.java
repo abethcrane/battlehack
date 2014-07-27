@@ -23,6 +23,7 @@ public class PaymentLoadingActivity extends Activity implements HTTPHandlers.Pay
 
     private Vendor v;
     private boolean active;
+    private String custID;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -38,7 +39,7 @@ public class PaymentLoadingActivity extends Activity implements HTTPHandlers.Pay
         tv.setText("From " + v.name);
         tv = (TextView) findViewById(R.id.description);
         tv.setText(v.item + " - $" + v.price);
-        v.getImageAsync((ImageView) findViewById(R.id.prodDis));
+        ImageCacher.getImageAsync((ImageView) findViewById(R.id.prodDis), v.url);
         ProgressBar spinner;
         spinner = (ProgressBar)findViewById(R.id.progressBar);
         spinner.setVisibility(View.VISIBLE);
@@ -55,7 +56,9 @@ public class PaymentLoadingActivity extends Activity implements HTTPHandlers.Pay
         if (!active) return;
         // if we have a token, call straight to evgeny
         if (getCustomerID() != null) {
-            new HTTPHandlers().finalisedPayment(getCustomerID(), v.id, this);
+            custID = getCustomerID();
+            setText(String.format(getString(R.string.payment_processing), v.name));
+            new HTTPHandlers().finalisedPayment(custID, v.id, this);
         } else {
             // else call braintree and then use the nonce to create a customer id
             Intent intent = new Intent(getApplicationContext(), BraintreePaymentActivity.class);
@@ -86,8 +89,6 @@ public class PaymentLoadingActivity extends Activity implements HTTPHandlers.Pay
 
             // Use the nonce to call /v3/client/create_customer
             new HTTPHandlers().fetchCustomerID(paymentMethodNonce, this);
-            // Now pass the customer id through to finalised payment
-            new HTTPHandlers().finalisedPayment(getCustomerID(), v.id, this);
             setText(String.format(getString(R.string.payment_processing), v.name));
             active = true;
         } else if (resultCode == BraintreePaymentActivity.RESULT_CANCELED) {
@@ -110,17 +111,10 @@ public class PaymentLoadingActivity extends Activity implements HTTPHandlers.Pay
 
     public void customerIDFetchedSuccess(String code) {
         if (!active) return;
-        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putString("customer_id", code);
-        editor.apply();
-        Log.d("Fetched customer ID", code);
-        Log.d("Fetched customer ID", settings.getString("customer_id", ""));
-        Intent successScreen = new Intent(getApplicationContext(), FinishedFragmentActivity.class);
-        successScreen.putExtra("vendor", v);
-        successScreen.putExtra("code", code);
-        startActivity(successScreen);
-        finish();
+        custID = code;
+        Log.d("Fetched customer ID", custID);
+        // Now pass the customer id through to finalised payment
+        new HTTPHandlers().finalisedPayment(custID, v.id, this);
     }
 
     @Override
@@ -138,7 +132,7 @@ public class PaymentLoadingActivity extends Activity implements HTTPHandlers.Pay
         SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
         if (settings.getBoolean("paypal_save", false)) {
             SharedPreferences.Editor editor = settings.edit();
-            editor.putString("customer_id", null);
+            editor.putString("customer_id", custID);
             editor.apply();
         }
 

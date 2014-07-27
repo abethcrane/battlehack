@@ -40,38 +40,7 @@ public class Vendor implements Serializable{
         return new Vendor(id, name, price, org, item, url);
     }
 
-    public void getImageAsync(ImageView iv) {
-        new DownloadImagesTask().execute(iv);
-    }
-
-    private class DownloadImagesTask extends AsyncTask<ImageView, Void, Bitmap> {
-
-        ImageView imageView = null;
-
-        @Override
-        protected Bitmap doInBackground(ImageView... imageViews) {
-            this.imageView = imageViews[0];
-            return download_Image(url);
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap result) {
-            imageView.setImageBitmap(result);
-        }
 
 
-        private Bitmap download_Image(String url) {
-            Bitmap bm = null;
-            try {
-                InputStream is = (InputStream) new URL(url).getContent();
-                BufferedInputStream bis = new BufferedInputStream(is);
-                bm = BitmapFactory.decodeStream(bis);
-                is.close();
-            } catch (Exception e) {
-                Log.e("Err", "Error getting the image from server : " + e.getMessage().toString());
-            }
-            return bm;
-        }
-    }
 
 }

@@ -37,7 +37,7 @@ public class Purchased extends Fragment {
         v = (Vendor) args.getSerializable("vendor");
         code = args.getString("code");
         tv.setText(String.format(getString(R.string.purchased_result), v.item, v.name));
-        v.getImageAsync((ImageView) rootView.findViewById(R.id.purchImg));
+        ImageCacher.getImageAsync((ImageView) rootView.findViewById(R.id.purchImg), v.url);
 
         // Clear old notifications
         NotificationManager notificationManager = (NotificationManager)getActivity().getSystemService(Context.NOTIFICATION_SERVICE);

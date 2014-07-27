@@ -50,7 +50,7 @@ public class VendorAdapter extends ArrayAdapter<Vendor> {
         Vendor v = super.getItem(position);
         holder.txtTitle.setText(v.name);
         holder.txtExtra.setText(v.item + " - $" + v.price);
-        v.getImageAsync(holder.imgIcon);
+        ImageCacher.getImageAsync(holder.imgIcon, v.url);
         return row;
     }
 

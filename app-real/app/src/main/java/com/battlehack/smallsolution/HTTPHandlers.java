@@ -144,6 +144,7 @@ public class HTTPHandlers {
         @Override
         public void onSuccess(JSONObject response) {
             String keyW = "";
+            Log.d("LLL", response.toString());
             try {
                 keyW = response.getString("keyword");
             } catch (Exception e) {
