@@ -19,21 +19,24 @@ from handlers import *
 from models import *
 
 login_manager.user_loader(User.get_by_username)
+login_manager.unauthorized = lambda: redirect('/login')
 
 if __name__ == '__main__':
   db.create_all()
+  Organisation.query.delete()
+  User.query.delete()
+  db.session.commit()
 
-  u = User()
-  u.username = 'evgeny'
-  u.set_password('potato')
-  o = Organisation()
-  o.name = 'The Big Issue'
-  db.session.add(u)
-  db.session.add(o)
-  try:
-    db.session.commit()
-  except:  # IntegrityError
-    pass
+  o1 = Organisation(name='The Big Issue')
+  o2 = Organisation(name='Helping Hands')
+  u1 = User(username='evgeny', organisation=o1)
+  u1.set_password('potato')
+  u2 = User(username='beth', organisation=o2)
+  u2.set_password('helloworld')
+
+  for obj in [o1, o2, u1, u2]:
+    db.session.add(obj)
+  db.session.commit()
 
   braintree.Configuration.configure(braintree.Environment.Sandbox,
       merchant_id=config.merchant_id,

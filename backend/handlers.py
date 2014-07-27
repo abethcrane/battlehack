@@ -40,7 +40,7 @@ def submit_for_settlement(transaction_id, vendor):
 #
 @app.route('/')
 def root():
-  return render_template('root.html')
+  return redirect('/login')
 
 
 @app.route('/login', methods=['GET', 'POST'])

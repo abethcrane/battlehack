@@ -38,7 +38,7 @@ class Vendor(db.Model):
 
 class User(db.Model):
   id = db.Column(db.Integer, primary_key=True)
-  username = db.Column(db.Unicode(1000), nullable=False)
+  username = db.Column(db.Unicode(1000), nullable=False, unique=True)
   password = db.Column(db.String(1000), nullable=False)
   organisation = db.relationship('Organisation')
   organisation_id = db.Column(db.Integer(), db.ForeignKey('organisation.id'))
