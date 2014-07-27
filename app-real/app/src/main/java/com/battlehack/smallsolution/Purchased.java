@@ -43,6 +43,7 @@ public class Purchased extends Fragment {
         NotificationManager notificationManager = (NotificationManager)getActivity().getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancelAll();
 
+
         return rootView;
 
         //uiHelper = new UiLifecycleHelper(this, null);

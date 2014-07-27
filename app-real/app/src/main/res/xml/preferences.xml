@@ -3,14 +3,14 @@
     android:title="Preferences">
 
     <PreferenceCategory
-        android:title="Name">
-        <EditTextPreference
-            android:key="pref_text"
-            android:title="Enter your name"
-            android:dialogTitle="Enter text"
-            />
+        android:title="PayPal">
+    <CheckBoxPreference
+        android:key="paypal_save"
+        android:title="Remember my PayPay details"
+        android:summary="Enable to make faster purchases"
+        android:defaultValue="false"
+        />
     </PreferenceCategory>
-
     <PreferenceCategory
         android:title="Facebook">
         <SwitchPreference
@@ -36,7 +36,6 @@
             android:defaultValue="I just bought The Big Issue! :)"
             android:inputType="textMultiLine"
         />
-
 
     </PreferenceCategory>
 

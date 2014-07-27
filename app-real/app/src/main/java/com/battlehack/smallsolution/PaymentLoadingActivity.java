@@ -133,6 +133,15 @@ public class PaymentLoadingActivity extends Activity implements HTTPHandlers.Pay
 
     public void paymentFinishedSuccess(String code) {
         if (!active) return;
+
+        // If users don't want us to save their paypal data then we clear it at the end of each transaction
+        SharedPreferences settings = PreferenceManager.getDefaultSharedPreferences(this);
+        if (settings.getBoolean("paypal_save", false)) {
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putString("customer_id", null);
+            editor.apply();
+        }
+
         Intent successScreen = new Intent(getApplicationContext(), FinishedFragmentActivity.class);
         successScreen.putExtra("vendor", v);
         successScreen.putExtra("code", code);
