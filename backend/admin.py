@@ -37,13 +37,37 @@ class OrdersView(BaseOrganisationFilteredModelView):
     super(OrdersView, self).__init__(models.Order, session, name='Order history')
 
 
+class BalancesView(admin.BaseView):
+  @expose('/')
+  @login.login_required
+  def index(self):
+    vendors = models.Vendor.query.filter(models.Vendor.organisation==login.current_user.organisation)
+    return render_template('admin/balances.html',
+        admin_base_template='admin/base.html',
+        admin_view=self,
+        h=helpers,
+        vendors=vendors,
+        org_name=login.current_user.organisation.name)
+
+
+  @expose('/pay/<vid>')
+  @login.login_required
+  def pay(self, vid):
+    vendor = models.Vendor.get_by_id(vid)
+    vendor.pay_up()
+    db.session.commit()
+    return redirect('/admin/balancesview/')
+
+
+class LogoutAdmin(admin.BaseView):
+  @expose('/')
+  def index(self):
+    return redirect('/logout')
+
 class AdminIndexView(admin.AdminIndexView):
   @expose('/')
   @login.login_required
   def index(self):
-    if not login.current_user.is_authenticated():
-      return redirect('/login')
-
     return render_template('admin/index.html',
         admin_base_template='admin/base.html',
         admin_view=self,
@@ -68,3 +92,5 @@ def bulk_update():
 admin = admin.Admin(app, index_view=AdminIndexView(name='Bulk update'))
 admin.add_view(VendorAdmin(db.session))
 admin.add_view(OrdersView(db.session))
+admin.add_view(BalancesView(name='Balances'))
+admin.add_view(LogoutAdmin(name='Logout'))

@@ -16,8 +16,15 @@ class Vendor(db.Model):
 
   total_sold = db.Column(db.Integer(), default=0, nullable=False)  # should be @aggregated but can't get it to subquery
 
+  paid = db.Column(db.Integer(), default=0, nullable=False)
+  owed = db.Column(db.Integer(), default=0, nullable=False)
+
   def __unicode__(self):
     return self.vendor
+
+  def pay_up(self):
+    self.paid += self.owed
+    self.owed = 0
 
   @classmethod
   def filter_by_ids(cls, ids):

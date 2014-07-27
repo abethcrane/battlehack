@@ -1,15 +1,75 @@
 <!DOCTYPE html>
 
 <html>
+<head>
+    <title>Login</title>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link href="/admin/static/bootstrap/css/bootstrap.css" rel="stylesheet">
+    <link href="/admin/static/bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+    
+    <style>
+    body {
+  padding-top: 40px;
+  padding-bottom: 40px;
+  background-color: #eee;
+}
+
+.form-signin {
+  max-width: 330px;
+  padding: 15px;
+  margin: 0 auto;
+}
+.form-signin .form-signin-heading,
+.form-signin .checkbox {
+  margin-bottom: 10px;
+  text-align :center;
+}
+.form-signin .checkbox {
+  font-weight: normal;
+}
+.form-signin .form-control {
+  position: relative;
+  height: auto;
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+  padding: 10px;
+  font-size: 16px;
+}
+.form-signin .form-control:focus {
+  z-index: 2;
+}
+.form-signin input[type="email"] {
+  width: 100%;
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+.form-signin input[type="password"] {
+  width: 100%;
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+    </style>
+</head>
 <body>
   {% if error %}
   <p>Invalid username or password.</p>
   {% endif %}
+  
+  <div class="container">
+    <form class="form-signin" role="form">
+      <h2 class="form-signin-heading">Please sign in</h2>
+      <input type="text" class="form-control" name="username" placeholder="evgeny" autocomplete="off" required autofocus>
+      <input type="password" class="form-control" name="password" placeholder="potato" autocomplete="off" required>
 
-  <form method='POST' action='/login'>
-    <input type='text' name='username' placeholder='evgeny'>
-    <input type='password' name='password' placeholder='potato'>
-    <input type='submit'>
-  </form>
+      <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+    </form>
+  </div>
+
 </body>
 </html>
