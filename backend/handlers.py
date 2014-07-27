@@ -8,11 +8,11 @@ from server import app, db, login_manager
 import models
 
 
-def authorise_payment(payment_method_nonce, amount):
-  result = braintree.Transaction.sale({
-      "amount" : amount,
-      "payment_method_nonce" : payment_method_nonce,
-  })
+#
+# BrainTree stuff
+#
+def __authorise_payment(**sale_params):
+  result = braintree.Transaction.sale(sale_params)
 
   if result.is_success:
       result = {'status': 'ok', 'transaction_id': result.transaction.id}
@@ -22,6 +22,11 @@ def authorise_payment(payment_method_nonce, amount):
   print request.form["payment_method_nonce"], result
   return result
 
+def authorise_payment(payment_method_nonce, amount):
+  return __authorise_payment(amount=amount, payment_method_nonce=payment_method_nonce)
+
+def authorise_payment_with_customer(customer_id, amount):
+  return __authorise_payment(amount=amount, customer_id=customer_id)
 
 def submit_for_settlement(transaction_id, vendor):
   result = braintree.Transaction.submit_for_settlement(transaction_id)
@@ -31,7 +36,9 @@ def submit_for_settlement(transaction_id, vendor):
     result = {'status': 'error', 'message': repr(result.errors)}
   return result
 
-
+#
+# Routes
+#
 @app.route('/')
 def root():
   return render_template('root.html')
@@ -97,6 +104,40 @@ def client_instant():
     return jsonify({'status': 'error', 'message': 'no such vendor'})
 
   result = authorise_payment(request.form['payment_method_nonce'], vendor.price)
+  if result['status'] != 'ok':
+    return jsonify(result)
+
+  result = submit_for_settlement(result['transaction_id'], vendor)
+  db.session.add(models.Order(vendor.organisation, vendor, vendor.item_name, vendor.price))
+  db.session.commit()
+  return jsonify(result)
+
+#
+# NEWEST API
+#
+@app.route('/v3/client/create_customer', methods=['POST'])
+def v3_client_create_customer():
+  result = braintree.Customer.create({
+    "payment_method_nonce": request.form['payment_method_nonce']
+  })
+
+  if result.is_success:
+    result = {'status': 'ok', 'customer_id': result.customer_id}
+  else:
+    result = {'status': 'error', 'message': repr(result.errors)}
+
+  print 'Made new client', result
+  return jsonify(result)
+
+
+@app.route('/v3/client/instant', methods=['POST'])
+def v3_client_instant():
+  vid = request.form['vendor_id']
+  vendor = models.Vendor.get_by_id(vid)
+  if not vendor:
+    return jsonify({'status': 'error', 'message': 'no such vendor'})
+
+  result = authorise_payment_with_customer(request.form['customer_id'], vendor.price)
   if result['status'] != 'ok':
     return jsonify(result)
 
