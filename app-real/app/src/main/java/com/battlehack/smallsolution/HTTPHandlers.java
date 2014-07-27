@@ -26,7 +26,7 @@ public class HTTPHandlers {
     }
 
     public void fetchCustomerID(String nonce, CustomerIDCallback callback) {
-        new HTTPCustomerIDGet(nonce, callback).begin();
+        new HTTPCustomerIDPost(nonce, callback).begin();
     }
 
     private class HTTPVendorFind extends JsonHttpResponseHandler {
@@ -62,11 +62,11 @@ public class HTTPHandlers {
 
     }
 
-    private class HTTPCustomerIDGet extends JsonHttpResponseHandler {
+    private class HTTPCustomerIDPost extends JsonHttpResponseHandler {
         private CustomerIDCallback callback;
         private String nonce;
 
-        public HTTPCustomerIDGet(String nonce, CustomerIDCallback callback) {
+        public HTTPCustomerIDPost(String nonce, CustomerIDCallback callback) {
             this.nonce = nonce;
             this.callback = callback;
         }
@@ -124,20 +124,21 @@ public class HTTPHandlers {
     }
 
     private class HTTPInstantPayment extends JsonHttpResponseHandler {
-        private String nonce, vendorId;
+        private String customerId, vendorId;
         private PaymentFinishedCallback callback;
 
-        public HTTPInstantPayment(String nonce, String vendorId, PaymentFinishedCallback callback) {
-            this.nonce = nonce;
+        public HTTPInstantPayment(String customerId, String vendorId, PaymentFinishedCallback callback) {
+            this.customerId = customerId;
             this.vendorId = vendorId;
             this.callback = callback;
         }
 
         public void begin() {
             RequestParams rp = new RequestParams();
-            rp.add("payment_method_nonce", nonce);
+            rp.add("customer_id", customerId);
             rp.add("vendor_id", vendorId);
-            getClient().post("http://bh.epochfail.com:5000/client/instant", rp, this);
+            Log.d("customer and vendor in instant", customerId + ", " + vendorId);
+            getClient().post("http://bh.epochfail.com:5000/v3/client/instant", rp, this);
         }
 
         @Override
