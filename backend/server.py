@@ -19,6 +19,7 @@ from handlers import *
 from models import *
 
 login_manager.user_loader(User.get_by_username)
+login_manager.unauthorized = lambda: redirect('/login')
 
 if __name__ == '__main__':
   db.create_all()
