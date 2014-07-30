@@ -13,6 +13,8 @@ import org.json.JSONObject;
 
 public class HTTPHandlers {
 
+    public final String SERVER = "http://54.79.74.85:5000";
+
     public void fetchVendorInfo(String major, String minor, VendorInfoCallback callback) {
         new HTTPVendorFind(major, minor, callback).begin();
     }
@@ -41,7 +43,7 @@ public class HTTPHandlers {
         }
 
         public void begin() {
-            getClient().get(String.format("http://bh.epochfail.com:5000/vendors/find?ids=%s:%s", major, minor), this);
+            getClient().get(String.format(SERVER + "/vendors/find?ids=%s:%s", major, minor), this);
         }
 
         @Override
@@ -74,7 +76,7 @@ public class HTTPHandlers {
         public void begin() {
             RequestParams rp = new RequestParams();
             rp.add("payment_method_nonce", nonce);
-            getClient().post("http://bh.epochfail.com:5000/v3/client/create_customer", rp, this);
+            getClient().post(SERVER + "/v3/client/create_customer", rp, this);
         }
 
         @Override
@@ -102,7 +104,7 @@ public class HTTPHandlers {
         }
 
         public void begin() {
-            getClient().get("http://bh.epochfail.com:5000/client/get_token/1337:1337", this);
+            getClient().get(SERVER + "/client/get_token/1337:1337", this);
         }
 
         @Override
@@ -138,7 +140,7 @@ public class HTTPHandlers {
             rp.add("customer_id", customerId);
             rp.add("vendor_id", vendorId);
             Log.d("customer and vendor in instant", customerId + ", " + vendorId);
-            getClient().post("http://bh.epochfail.com:5000/v3/client/instant", rp, this);
+            getClient().post(SERVER + "/v3/client/instant", rp, this);
         }
 
         @Override

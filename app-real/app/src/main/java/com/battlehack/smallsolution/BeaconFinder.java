@@ -43,6 +43,7 @@ public class BeaconFinder {
 		Log.v("blelib", "bluetooth adapter enabled");
 		handler.postDelayed(bleStopScanCallback, SCAN_PERIOD);
 		bluetoothAdapter.startLeScan(mLeScanCallback);
+        addExtra();
 		return true;
 	}
 	private Runnable bleStopScanCallback = new Runnable() {
@@ -74,7 +75,6 @@ public class BeaconFinder {
 			}
 			Log.v("blelib",s);
 			beaconCallback.beaconFound(maj,min,uuid);
-            addExtra();
 		}
 
 	}
