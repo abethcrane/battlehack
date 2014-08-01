@@ -6,7 +6,7 @@
         android:title="PayPal">
     <CheckBoxPreference
         android:key="paypal_save"
-        android:title="Remember my PayPay details"
+        android:title="Remember my PayPal details"
         android:summary="Enable to make faster purchases"
         android:defaultValue="false"
         />
